@@ -12,9 +12,9 @@ npx create-turbo@latest -e with-react-native-web
 
 ## What's inside?
 
-This Turborepo includes the following packages/apps:
+This Turborepo includes the following packages/frontend:
 
-### Apps and Packages
+### Frontend and Packages
 
 - `native`: a [react-native](https://reactnative.dev/) app built with [expo](https://docs.expo.dev/)
 - `web`: a [Next.js](https://nextjs.org/) app built with [react-native-web](https://necolas.github.io/react-native-web/)
