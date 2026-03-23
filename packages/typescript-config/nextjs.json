@@ -6,14 +6,15 @@
     "declaration": false,
     "declarationMap": false,
     "incremental": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": true,
     "target": "es5"
   },
-  "include": ["src", "next-env.d.ts"],
+  "include": [".", "src", "next-env.d.ts"],
   "exclude": ["node_modules"]
 }
