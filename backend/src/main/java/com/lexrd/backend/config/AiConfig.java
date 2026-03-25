@@ -6,6 +6,7 @@ import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,7 @@ public class AiConfig {
      * This is perfect for local development before connecting to Supabase.
      */
     @Bean
-    public VectorStore vectorStore(EmbeddingModel embeddingModel) {
+    public VectorStore vectorStore(@Qualifier("googleGenAiTextEmbedding") EmbeddingModel embeddingModel) {
         log.info("Initializing VectorStore with EmbeddingModel: {}", embeddingModel.getClass().getSimpleName());
         SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel).build();
         File vectorStoreFile = new File("vectorstore.json");
