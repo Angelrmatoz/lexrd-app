@@ -36,5 +36,7 @@ yarn-error.log*
 # turbo
 .turbo
 .idea
+.vscode
+.ai
 target/
 backend/src/main/resources/application.properties
