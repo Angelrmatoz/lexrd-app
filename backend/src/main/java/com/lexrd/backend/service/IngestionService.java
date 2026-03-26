@@ -48,12 +48,17 @@ public class IngestionService {
             PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(resource);
             List<Document> documents = pdfReader.get();
 
-            // 2. Split into chunks (semantical segments)
-            // Using the non-deprecated builder with compatible method names
+            // 2. Split into chunks semantically respecting Dominican Law Structure
+            // (Libros, Títulos, Capítulos, Artículos)
+            StructuralLawSplitter structuralSplitter = new StructuralLawSplitter();
+            List<Document> structuralDocuments = structuralSplitter.apply(documents);
+
+            // Optional Fallback: TokenTextSplitter for any extremely large articles or
+            // preamble to respect token limits for embeddings
             TokenTextSplitter splitter = TokenTextSplitter.builder()
                     .withKeepSeparator(true)
                     .build();
-            List<Document> splitDocuments = splitter.apply(documents);
+            List<Document> splitDocuments = splitter.apply(structuralDocuments);
 
             // 3. Store in Vector Store (Supabase pgvector or SimpleVectorStore)
             // Spring AI handles the embedding generation via OpenRouter automatically
