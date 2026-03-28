@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,8 @@ public class IngestionService {
             );
             return count != null && count > 0;
         } catch (org.springframework.dao.DataAccessException e) {
-            log.warn("Error verificando archivo en DB (probablemente la tabla aún no se ha creado): {}", e.getMessage());
+            // Mantenemos como DEBUG para no asustar si la tabla no existe aún.
+            log.debug("Error verificando archivo en DB (probablemente la tabla aún no se ha creado): {}", e.getMessage());
             return false;
         }
     }
@@ -48,22 +48,27 @@ public class IngestionService {
      */
     @Async
     public void ingestPdfAsync(MultipartFile file) {
-        log.info("Starting async ingestion for file: {}", file.getOriginalFilename());
+        // INFO: Útil para ver que se está iniciando la ingesta
+        log.info("Iniciando ingesta asíncrona: {}", file.getOriginalFilename());
         ingestResource(file.getResource());
-        log.info("Finished async ingestion for file: {}", file.getOriginalFilename());
+        log.info("Ingesta asíncrona completada: {}", file.getOriginalFilename());
     }
 
     /**
      * Ingests a PDF file from a Spring Resource (Local file).
      */
     public void ingestPdf(Resource resource) {
-        log.info("Ingesting file from resource: {}", resource.getFilename());
+        // DEBUG: Detalles internos antes de validar
+        log.debug("Iniciando verificación de recurso local: {}", resource.getFilename());
+        
         if (isFileIngested(resource.getFilename())) {
-            log.info("Ignorando: {} ya está en la base de datos.", resource.getFilename());
+            // INFO: Importante saber qué documentos se están omitiendo
+            log.info("Omitido (ya existe): {}", resource.getFilename());
             return;
         }
         ingestResource(resource);
-        log.info("Successfully ingested: {}", resource.getFilename());
+        // INFO: Útil para saber qué documentos se procesaron exitosamente
+        log.info("Ingesta completada: {}", resource.getFilename());
     }
 
     private void ingestResource(Resource resource) {
@@ -83,19 +88,26 @@ public class IngestionService {
             TokenTextSplitter splitter = TokenTextSplitter.builder()
                     .withKeepSeparator(true)
                     .build();
-            List<Document> splitDocuments = splitter.apply(structuralDocuments);
+            List<Document> splitDocuments = splitter.apply(structuralDocuments)
+                    .stream()
+                    .map(doc -> {
+                        String content = doc.getText(); // En 2.0.0-M3 es getText() o getContent()
+                        if (content != null && content.contains("\u0000")) {
+                            return new Document(doc.getId(), content.replace("\u0000", ""), doc.getMetadata());
+                        }
+                        return doc;
+                    }).toList();
 
-            // 3. Rate-limited ingestion para la cuota de Gemini (Batches)
-            int batchSize = 25;
+            // 3. Batch ingestion (Optimized for Local Transformers)
+            int batchSize = 200; 
             for (int i = 0; i < splitDocuments.size(); i += batchSize) {
                 int end = Math.min(splitDocuments.size(), i + batchSize);
                 List<Document> batch = new ArrayList<>(splitDocuments.subList(i, end));
 
-                log.info("Ingesting batch {} to {} of {}", i, end, splitDocuments.size());
+                // DEBUG: Este es el que más llenaba la consola (spam), lo pasamos a debug
+                log.debug("Ingestando lote {} a {} de {} (Local Embedding)", i, end, splitDocuments.size());
                 vectorStore.add(batch);
-
-                // Esperamos 4 segundos entre batches para no sobrecargar Gemini API
-                TimeUnit.SECONDS.sleep(4);
+                // Ya no necesitamos dormir hilos porque el modelo es local 🚀
             }
 
             // 4. Local persistence (solo si usaran SimpleVectorStore)
@@ -103,12 +115,9 @@ public class IngestionService {
                 simpleStore.save(new File("vectorstore.json"));
             }
 
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("PDF ingestion interrupted for: {}", resource.getFilename(), e);
-            throw new RuntimeException("PDF ingestion was interrupted", e);
         } catch (Exception e) {
-            log.error("Failed to ingest PDF: {}", resource.getFilename(), e);
+            // ERROR: Siempre hay que verlos
+            log.error("Error al ingestar el PDF: {}", resource.getFilename(), e);
             throw new RuntimeException("Error during PDF ingestion", e);
         }
     }

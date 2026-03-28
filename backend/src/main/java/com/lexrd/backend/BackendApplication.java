@@ -14,6 +14,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class BackendApplication {
 
     public static void main(String[] args) {
+        // Fix for Error 3: "Comparison method violates its general contract!" in PDF stripping
+        System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
+
         // Asegurar que exista el directorio temporal antes de que arranque Tomcat.
         // Esto previene errores si haces "mvn clean" (que borra la carpeta target/temp).
         new java.io.File(System.getProperty("java.io.tmpdir")).mkdirs();

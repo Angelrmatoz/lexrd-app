@@ -20,7 +20,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("Starting knowledge-base seeding process...");
+        log.info("🚀 Iniciando proceso de siembra de base de conocimiento (Seeder)...");
 
         // Scan for all PDF files in the knowledge-base directory
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -30,25 +30,30 @@ public class DatabaseSeeder implements CommandLineRunner {
             resources = resolver.getResources("classpath:knowledge-base/**/*.pdf");
             
             if (resources.length == 0) {
-                log.info("No PDF files found in knowledge-base folder. Skipping seeding.");
+                // INFO: Importante saber si no hay nada que hacer
+                log.info("⚠️ No se encontraron archivos PDF en la carpeta 'knowledge-base'. Omitiendo siembra.");
                 return;
             }
 
-            log.info("Found {} PDF files to ingest.", resources.length);
+            log.info("📚 Encontrados {} archivos PDF para procesar.", resources.length);
 
             for (Resource resource : resources) {
-                log.info("Seeding knowledge from: {}", resource.getFilename());
+                // DEBUG: Como IngestionService ya imprime INFO para cada archivo (éxito o omitido), 
+                // imprimir esto en INFO sería redundante y ensuciaría la consola.
+                log.debug("Enviando {} al IngestionService...", resource.getFilename());
                 try {
                     ingestionService.ingestPdf(resource);
                 } catch (Exception e) {
-                    log.error("Error seeding {}: {}", resource.getFilename(), e.getMessage());
+                    // ERROR: Siempre hay que verlos
+                    log.error("❌ Error al sembrar {}: {}", resource.getFilename(), e.getMessage());
                 }
             }
 
-            log.info("Knowledge-base seeding completed successfully.");
+            log.info("✅ Proceso de siembra (Seeder) completado exitosamente.");
             
         } catch (IOException e) {
-            log.error("Failed to read knowledge-base directory: {}", e.getMessage());
+            // ERROR: Fallo catastrófico al leer la carpeta
+            log.error("💥 Fallo crítico al leer el directorio 'knowledge-base': {}", e.getMessage());
         }
     }
 }
