@@ -1,28 +1,24 @@
 # Backend - Agents Documentation
 
-This directory contains the Spring Boot backend service for the Lexrd project.
+El corazón de IA de LexRD, construido con Spring Boot y Spring AI.
 
-## Tech Stack
-- **Framework**: Spring Boot.
-- **Build System**: Maven (`mvnw` wrapper).
-- **Language**: Java 17+ (assumed).
-- **Architecture**: Domain-driven/Package-by-feature.
+## Arquitectura de IA
+El backend implementa un patrón RAG (Retrieval-Augmented Generation) avanzado:
+1.  **Ingesta**: `IngestionService.java` lee PDFs de `src/main/resources/knowledge-base`, los divide con `StructuralLawSplitter.java` y los guarda en `pgvector`.
+2.  **Consulta**: `ChatService.java` realiza **Query Rewriting** para convertir lenguaje natural en términos de búsqueda legal.
+3.  **Generación**: Combina el contexto recuperado con el modelo de IA (OpenRouter) para generar respuestas fundamentadas.
 
-## Project Structure
-- `src/main/java/com/lexrd/backend/`: Application source code.
-- `src/test/java/com/lexrd/backend/`: Unit and integration tests.
-- `src/main/resources/`: Configuration files and static assets.
+## Configuración Clave
+-   **Seguridad**: `SecurityConfig.java` permite acceso libre a `/api/**` para facilitar pruebas POST desde Postman/Frontend en desarrollo.
+-   **IA Fallback**: `FallbackChatModel.java` gestiona errores de API de OpenRouter intentando hasta 3 modelos diferentes secuencialmente.
+-   **Base de Datos**: Usa Supabase (PostgreSQL) con la extensión `pgvector`.
 
-## Commands
-- **Build**: `./mvnw clean install` (Linux) or `.\mvnw.cmd clean install` (Windows).
-- **Run**: `./mvnw spring-boot:run` or `.\mvnw.cmd spring-boot:run`.
-- **Test**: `./mvnw test` or `.\mvnw.cmd test`.
+## Estructura de Paquetes
+-   `config/`: Configuraciones de IA, Seguridad y Base de Datos.
+-   `controller/`: Endpoints REST (`ChatController`, `DocumentController`).
+-   `service/`: Lógica de negocio, RAG y procesamiento de documentos.
+-   `model/`: DTOs de petición y respuesta.
 
-## Conventions
-- **Naming**: PascalCase for Classes and Interfaces, camelCase for methods and variables.
-- **Packages**: Use reverse domain name notation (`com.lexrd.backend`).
-- **REST APIs**: Use standard HTTP methods and pluralized nouns for resources.
-
-## Developer Notes
-- Monitor `application.properties` for port settings and external service configurations.
-- Ensure the backend service is running before testing the frontend's API interactions.
+## Notas para IA
+-   Cualquier cambio en la lógica de búsqueda debe probarse verificando que el `similarityThreshold` en `ChatService` sea el óptimo para los documentos actuales.
+-   Si se añaden nuevos PDFs al `knowledge-base`, el sistema los procesará en el siguiente inicio si el `app.seeder.enabled` está en `true`.

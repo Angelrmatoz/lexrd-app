@@ -1,32 +1,64 @@
-# Turborepo react-native starter
+# LexRD - Asistente Legal Inteligente (RD)
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+LexRD es una plataforma monorepo diseñada para proporcionar asistencia legal basada en la normativa de la República Dominicana, utilizando Inteligencia Artificial avanzada y técnicas de RAG (Retrieval-Augmented Generation).
 
-## Using this example
+## Arquitectura del Proyecto
 
-Run the following command:
+Este proyecto utiliza **Turborepo** con **pnpm** para gestionar múltiples aplicaciones y paquetes.
 
+### Estructura de Directorios
+
+- `frontend/`: Capas de interfaz de usuario.
+  - `web/`: Aplicación web construida con **Next.js** y `react-native-web`.
+  - `native/`: Aplicación móvil multiplataforma construida con **Expo/React Native**.
+- `backend/`: Microservicio central construido con **Java 25** y **Spring Boot 4**.
+  - Implementa **Spring AI** para la integración con modelos de lenguaje.
+  - Utiliza **pgvector** para la búsqueda semántica en documentos legales.
+- `packages/`: Código compartido entre aplicaciones.
+  - `ui/`: Librería de componentes compartida (`@repo/ui`).
+  - `typescript-config/`: Configuraciones base de TypeScript.
+
+## Stack Tecnológico
+
+- **Frontend**: Next.js, Expo, React Native Web, TypeScript.
+- **Backend**: Spring Boot 4, Java 25, Spring AI.
+- **IA/ML**: OpenRouter (Modelos: Nvidia Nemotron, Llama 3.1), ONNX para embeddings locales.
+- **Base de Datos**: PostgreSQL con la extensión `pgvector` (alojado en Supabase).
+- **Gestión de Monorepo**: Turborepo, pnpm.
+
+## Cómo empezar
+
+### Requisitos previos
+- Node.js (v18+)
+- pnpm
+- Java 25 (JDK)
+- Docker (para base de datos local opcional)
+
+### Instalación
 ```sh
-npx create-turbo@latest -e with-react-native-web
+pnpm install
 ```
 
-## What's inside?
+### Ejecución en Desarrollo
 
-This Turborepo includes the following packages/frontend:
+**Backend:**
+```sh
+cd backend
+./mvnw spring-boot:run
+```
+*El backend corre por defecto en el puerto **5000**.*
 
-### Frontend and Packages
+**Frontend Web:**
+```sh
+pnpm dev:web
+```
 
-- `native`: a [react-native](https://reactnative.dev/) app built with [expo](https://docs.expo.dev/)
-- `web`: a [Next.js](https://nextjs.org/) app built with [react-native-web](https://necolas.github.io/react-native-web/)
-- `@repo/ui`: a stub [react-native](https://reactnative.dev/) component library shared by both `web` and `native` applications
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+**Frontend Móvil:**
+```sh
+pnpm dev:native
+```
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Expo](https://docs.expo.dev/) for native development
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [Prettier](https://prettier.io) for code formatting
+## Características Principales
+- **RAG (Retrieval-Augmented Generation)**: Consultas inteligentes sobre el Código Civil, Código Penal, Ley 63-17 y más.
+- **Query Rewriting**: Optimización de preguntas informales en términos legales para búsquedas precisas.
+- **Seguridad**: Configuración personalizada para facilitar pruebas de integración (CSRF desactivado en entorno de desarrollo).

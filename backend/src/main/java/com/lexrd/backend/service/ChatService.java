@@ -24,61 +24,82 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChatService {
 
-        private final ChatModel chatModel;
-        private final VectorStore vectorStore;
+    private final ChatModel chatModel;
+    private final VectorStore vectorStore;
 
-        private static final String SYSTEM_PROMPT = """
-                        Eres un asistente legal experto en la normativa de la República Dominicana.
-                        Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
+    // Prompt para extraer palabras clave de búsqueda
+    private static final String REWRITE_PROMPT = """
+        Eres un experto extrayendo palabras clave legales en República Dominicana.
+        Lee el siguiente mensaje del usuario (que puede ser una historia o una queja informal) 
+        y conviértelo en una búsqueda directa y concisa de conceptos legales (máximo 15 palabras).
+        NO respondas la pregunta. SOLO devuelve las palabras clave para buscar en una base de datos de leyes.
+        
+        Mensaje del usuario: {user_message}
+        
+        Búsqueda legal:
+        """;
 
-                        A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
-                        Si el contexto no contiene información suficiente para dar una respuesta definitiva, admítelo, pero intenta orientar al usuario con lo que tengas disponible.
-                        Menciona siempre que tus respuestas son informativas y no sustituyen el consejo de un abogado profesional.
+    private static final String SYSTEM_PROMPT = """
+        Eres un asistente legal experto en la normativa de la República Dominicana.
+        Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
+        
+        A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
+        Si el contexto no contiene información suficiente para dar una respuesta definitiva, admítelo, pero intenta orientar al usuario con lo que tengas disponible.
+        Menciona siempre que tus respuestas son informativas y no sustituyen el consejo de un abogado profesional.
+        
+        Utiliza un tono formal, claro y servicial.
+        
+        CONTEXTO LEGAL:
+        {context}
+        """;
 
-                        Utiliza un tono formal, claro y servicial.
+    public ChatResponse processChat(ChatRequest request) {
+        log.info("Processing chat request for message: {}", request.getMessage());
 
-                        CONTEXTO LEGAL:
-                        {context}
-                        """;
+        // --- PASO 1: REESCRITURA DE CONSULTA (QUERY REWRITING) ---
+        log.info("Optimizando la consulta del usuario para búsqueda vectorial...");
+        SystemPromptTemplate rewriteTemplate = new SystemPromptTemplate(REWRITE_PROMPT);
+        var rewriteMessage = rewriteTemplate.createMessage(Map.of("user_message", request.getMessage()));
+        
+        String optimizedQuery = chatModel.call(new Prompt(List.of(rewriteMessage)))
+                .getResult().getOutput().getText();
+        
+        log.info("Consulta original: {}", request.getMessage());
+        log.info("Consulta optimizada para pgvector: {}", optimizedQuery);
 
-        public ChatResponse processChat(ChatRequest request) {
-                log.info("Processing chat request for message: {}", request.getMessage());
+        // --- PASO 2: BÚSQUEDA VECTORIAL CON LA CONSULTA OPTIMIZADA ---
+        // Buscamos usando las palabras clave, NO la historia original
+        List<Document> similarDocuments = vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(optimizedQuery) // <--- Usamos el query optimizado aquí
+                        .topK(5)
+                        .similarityThreshold(0.5) // Adjust based on precision needs
+                        .build());
 
-                // 1. Retrieve relevant legal context from the vector store
-                // Using withTopK(5) to get enough legal context but keeping it within model
-                // limits
-                List<Document> similarDocuments = vectorStore.similaritySearch(
-                                SearchRequest.builder()
-                                                .query(request.getMessage())
-                                                .topK(5)
-                                                .similarityThreshold(0.5) // Adjust based on precision needs
-                                                .build());
+        String context = similarDocuments.stream()
+                .map(Document::getText)
+                .collect(Collectors.joining("\n\n---\n\n"));
 
-                String context = similarDocuments.stream()
-                                .map(Document::getText)
-                                .collect(Collectors.joining("\n\n---\n\n"));
+        // Prepare sources list (filenames stored in metadata)
+        List<String> sources = similarDocuments.stream()
+                .map(doc -> (String) doc.getMetadata().getOrDefault("file_name", "Documento Legal"))
+                .distinct()
+                .collect(Collectors.toList());
 
-                // 2. Prepare sources list (filenames stored in metadata)
-                List<String> sources = similarDocuments.stream()
-                                .map(doc -> (String) doc.getMetadata().getOrDefault("file_name", "Documento Legal"))
-                                .distinct()
-                                .collect(Collectors.toList());
+        // --- PASO 3: RESPUESTA FINAL ---
+        // Le pasamos el contexto recuperado y la historia ORIGINAL del usuario
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(SYSTEM_PROMPT);
+        var systemMessage = systemPromptTemplate.createMessage(Map.of("context", context));
+        var userMessage = new UserMessage(request.getMessage()); // <--- El LLM sí lee la historia original
 
-                // 3. Create the prompt with the retrieved context
-                SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(SYSTEM_PROMPT);
-                var systemMessage = systemPromptTemplate.createMessage(Map.of("context", context));
-                var userMessage = new UserMessage(request.getMessage());
+        log.info("Generating final response using AI models...");
 
-                log.info("Generating response using AI models...");
+        String aiResponse = chatModel.call(new Prompt(List.of(systemMessage, userMessage)))
+                .getResult().getOutput().getText();
 
-                // 4. Generate the response through the ChatModel (handled with fallbacks in
-                // AiConfig)
-                String aiResponse = chatModel.call(new Prompt(List.of(systemMessage, userMessage)))
-                                .getResult().getOutput().getText();
-
-                return ChatResponse.builder()
-                                .response(aiResponse)
-                                .sources(sources)
-                                .build();
-        }
+        return ChatResponse.builder()
+                .response(aiResponse)
+                .sources(sources)
+                .build();
+    }
 }
