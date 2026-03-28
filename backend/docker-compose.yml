@@ -1,0 +1,53 @@
+services:
+  # ─────────────────────────────────────────────────
+  # PostgreSQL 17 + pgvector (extensión vectorial)
+  # Imagen oficial: https://hub.docker.com/r/pgvector/pgvector
+  # ─────────────────────────────────────────────────
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: lexrd_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lexrd_backend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lexrd_backend"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────
+  # Backend Spring Boot (solo se usa en producción/
+  # demo completo. Para desarrollo usa IntelliJ.)
+  # ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lexrd_backend
+    restart: unless-stopped
+    profiles:
+      - full
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: lexrd_backend
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    ports:
+      - "4000:4000"
+
+volumes:
+  pgdata:
+    name: lexrd_pgdata

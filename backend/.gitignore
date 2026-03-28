@@ -32,3 +32,10 @@ build/
 ### VS Code ###
 .vscode
 
+### Environment Variables (API keys — NEVER commit) ###
+.env
+.env.local
+.env.production
+
+### LexRD specific ###
+vectorstore.json
