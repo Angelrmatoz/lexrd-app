@@ -30,13 +30,15 @@ public class ChatService {
     // Prompt para extraer palabras clave de búsqueda
     private static final String REWRITE_PROMPT = """
         Eres un experto extrayendo palabras clave legales en República Dominicana.
-        Lee el siguiente mensaje del usuario (que puede ser una historia o una queja informal) 
-        y conviértelo en una búsqueda directa y concisa de conceptos legales (máximo 15 palabras).
-        NO respondas la pregunta. SOLO devuelve las palabras clave para buscar en una base de datos de leyes.
+        Lee el mensaje del usuario y conviértelo en una lista de palabras clave para buscar en una base de datos vectorial.
+        - Si el usuario habla de vehículos, choques, licencias o tránsito, INCLUYE obligatoriamente las palabras "Ley 63-17 Tránsito Movilidad".
+        - Si habla de despidos o trabajo, INCLUYE obligatoriamente "Código de Trabajo".
+        - Usa solo conceptos legales, máximo 15 palabras.
+        NO respondas la pregunta. SOLO devuelve las palabras clave para buscar.
         
         Mensaje del usuario: {user_message}
         
-        Búsqueda legal:
+        Palabras clave de búsqueda:
         """;
 
     private static final String SYSTEM_PROMPT = """
@@ -72,8 +74,8 @@ public class ChatService {
         List<Document> similarDocuments = vectorStore.similaritySearch(
                 SearchRequest.builder()
                         .query(optimizedQuery) // <--- Usamos el query optimizado aquí
-                        .topK(5)
-                        .similarityThreshold(0.5) // Adjust based on precision needs
+                        .topK(10)
+                        // .similarityThreshold(0.5) // Eliminado para evitar falsos negativos en pgvector
                         .build());
 
         String context = similarDocuments.stream()
