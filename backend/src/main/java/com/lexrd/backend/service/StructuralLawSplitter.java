@@ -54,7 +54,7 @@ public class StructuralLawSplitter extends TextSplitter {
         StringBuilder currentGroup = new StringBuilder();
 
         for (String chunk : chunks) {
-            if (currentGroup.length() + chunk.length() < 1500) { 
+            if (currentGroup.length() + chunk.length() < 4000) { 
                 currentGroup.append("\n\n").append(chunk);
             } else {
                 if (currentGroup.length() > 0) {

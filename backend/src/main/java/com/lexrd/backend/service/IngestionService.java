@@ -3,7 +3,7 @@ package com.lexrd.backend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
+import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -74,12 +74,17 @@ public class IngestionService {
     private void ingestResource(Resource resource) {
         try {
             // 1. Read PDF content
-            PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(resource);
-            List<Document> documents = pdfReader.get();
+            TikaDocumentReader tikaReader = new TikaDocumentReader(resource);
+            List<Document> documents = tikaReader.get();
 
             // Insertar el metadata del filename manualmente para asegurarnos que exista
             String fileName = resource.getFilename();
-            documents.forEach(doc -> doc.getMetadata().put("file_name", fileName));
+            documents.forEach(doc -> {
+                if (doc.getText() == null || doc.getText().isBlank()) {
+                    log.warn("Documento extraído de {} está vacío o es nulo", fileName);
+                }
+                doc.getMetadata().put("file_name", fileName);
+            });
 
             // 2. Split into chunks semantically respecting Dominican Law Structure
             StructuralLawSplitter structuralSplitter = new StructuralLawSplitter();
@@ -88,15 +93,7 @@ public class IngestionService {
             TokenTextSplitter splitter = TokenTextSplitter.builder()
                     .withKeepSeparator(true)
                     .build();
-            List<Document> splitDocuments = splitter.apply(structuralDocuments)
-                    .stream()
-                    .map(doc -> {
-                        String content = doc.getText(); // En 2.0.0-M3 es getText() o getContent()
-                        if (content != null && content.contains("\u0000")) {
-                            return new Document(doc.getId(), content.replace("\u0000", ""), doc.getMetadata());
-                        }
-                        return doc;
-                    }).toList();
+            List<Document> splitDocuments = splitter.apply(structuralDocuments);
 
             // 3. Batch ingestion (Optimized for Local Transformers)
             int batchSize = 200; 
