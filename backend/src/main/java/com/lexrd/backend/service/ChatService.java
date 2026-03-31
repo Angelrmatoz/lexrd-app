@@ -18,6 +18,7 @@ import com.lexrd.backend.model.ChatResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +75,7 @@ public class ChatService {
         List<Document> similarDocuments = vectorStore.similaritySearch(
                 SearchRequest.builder()
                         .query(optimizedQuery) // <--- Usamos el query optimizado aquí
-                        .topK(10)
+                        .topK(20)
                         // .similarityThreshold(0.5) // Eliminado para evitar falsos negativos en pgvector
                         .build());
 
@@ -103,5 +104,43 @@ public class ChatService {
                 .response(aiResponse)
                 .sources(sources)
                 .build();
+    }
+
+    public Flux<ChatResponse> streamChat(ChatRequest request) {
+        log.info("Streaming chat request for message: {}", request.getMessage());
+
+        // --- PASO 1: REESCRITURA DE CONSULTA ---
+        SystemPromptTemplate rewriteTemplate = new SystemPromptTemplate(REWRITE_PROMPT);
+        var rewriteMessage = rewriteTemplate.createMessage(Map.of("user_message", request.getMessage()));
+        
+        String optimizedQuery = chatModel.call(new Prompt(List.of(rewriteMessage)))
+                .getResult().getOutput().getText();
+
+        // --- PASO 2: BÚSQUEDA VECTORIAL ---
+        List<Document> similarDocuments = vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(optimizedQuery)
+                        .topK(20)
+                        .build());
+
+        String context = similarDocuments.stream()
+                .map(Document::getText)
+                .collect(Collectors.joining("\n\n---\n\n"));
+
+        List<String> sources = similarDocuments.stream()
+                .map(doc -> (String) doc.getMetadata().getOrDefault("file_name", "Documento Legal"))
+                .distinct()
+                .collect(Collectors.toList());
+
+        // --- PASO 3: RESPUESTA EN STREAMING ---
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(SYSTEM_PROMPT);
+        var systemMessage = systemPromptTemplate.createMessage(Map.of("context", context));
+        var userMessage = new UserMessage(request.getMessage());
+
+        return chatModel.stream(new Prompt(List.of(systemMessage, userMessage)))
+                .map(chunk -> ChatResponse.builder()
+                        .response(chunk.getResult().getOutput().getText())
+                        .sources(sources)
+                        .build());
     }
 }

@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * A {@link TextSplitter} implementation that splits text from legal documents
- * based on Dominican law structure (e.g., "Libro", "Título", "Capítulo", "Artículo").
- */
 public class StructuralLawSplitter extends TextSplitter {
 
+    // Regex actualizado: Excluimos "PÁRRAFO" para no dividir artículos a la mitad.
     private static final Pattern HEADING_PATTERN = Pattern.compile(
-            "^(LIBRO|T[ÍI]TULO|CAP[ÍI]TULO|SECCI[ÓO]N|SUBSECCI[ÓO]N|P[ÁA]RRAFO|ART[ÍI]CULO|ART\\.)\\s+.*",
+            "^(LIBRO|T[ÍI]TULO|CAP[ÍI]TULO|SECCI[ÓO]N|SUBSECCI[ÓO]N|ART[ÍI]CULO|ART\\\\.)\\s+.*",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     @Override
@@ -23,28 +20,54 @@ public class StructuralLawSplitter extends TextSplitter {
         Matcher matcher = HEADING_PATTERN.matcher(text);
 
         int lastEnd = 0;
-        String lastChunk = null;
+        String lastChunkHeading = "";
 
         while (matcher.find()) {
-            if (lastChunk != null) {
-                String chunkContent = text.substring(lastEnd, matcher.start()).trim();
-                if (!chunkContent.isEmpty()) {
-                    chunks.add(lastChunk + "\n" + chunkContent);
-                }
+            String currentChunkHeading = matcher.group().trim();
+            String chunkContent = text.substring(lastEnd, matcher.start()).trim();
+
+            if (!chunkContent.isEmpty()) {
+                chunks.add(lastChunkHeading + "\n" + chunkContent);
             }
-            lastChunk = matcher.group().trim();
+            
+            lastChunkHeading = currentChunkHeading;
             lastEnd = matcher.end();
         }
 
-        if (lastChunk != null) {
+        if (lastEnd < text.length()) {
             String remainingContent = text.substring(lastEnd).trim();
-            chunks.add(lastChunk + "\n" + remainingContent);
+            if (!remainingContent.isEmpty()) {
+                chunks.add(lastChunkHeading + "\n" + remainingContent);
+            }
         }
 
         if (chunks.isEmpty() && !text.trim().isEmpty()) {
             chunks.add(text);
         }
 
-        return chunks;
+        return groupSmallChunks(chunks);
+    }
+
+    // Une chunks pequeños para preservar contexto semántico en pgvector
+    private List<String> groupSmallChunks(List<String> chunks) {
+        List<String> groupedChunks = new ArrayList<>();
+        StringBuilder currentGroup = new StringBuilder();
+
+        for (String chunk : chunks) {
+            if (currentGroup.length() + chunk.length() < 1500) { 
+                currentGroup.append("\n\n").append(chunk);
+            } else {
+                if (currentGroup.length() > 0) {
+                    groupedChunks.add(currentGroup.toString().trim());
+                }
+                currentGroup = new StringBuilder(chunk);
+            }
+        }
+        
+        if (currentGroup.length() > 0) {
+            groupedChunks.add(currentGroup.toString().trim());
+        }
+        
+        return groupedChunks;
     }
 }

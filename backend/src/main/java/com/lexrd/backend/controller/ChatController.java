@@ -4,8 +4,10 @@ import com.lexrd.backend.model.ChatRequest;
 import com.lexrd.backend.model.ChatResponse;
 import com.lexrd.backend.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -27,5 +29,10 @@ public class ChatController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ChatResponse> streamAsk(@RequestBody ChatRequest request) {
+        return chatService.streamChat(request);
     }
 }
