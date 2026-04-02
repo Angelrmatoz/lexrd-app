@@ -23,6 +23,9 @@ public class AiConfig {
     @Value("${ai.model.fallback2}")
     private String fallback2;
 
+    @Value("${ai.model.fallback3}")
+    private String fallback3;
+
     /**
      * Fallback configuration for AI chat models.
      * This will try the primary model and then fall back to others if it fails.
@@ -30,8 +33,8 @@ public class AiConfig {
     @Bean
     @Primary
     public ChatModel chatModel(OpenAiChatModel openAiChatModel) {
-        log.info("Initializing FallbackChatModel with primary: {} and fallbacks: {}, {}", primaryModel, fallback1, fallback2);
-        return new FallbackChatModel(openAiChatModel, primaryModel, List.of(fallback1, fallback2));
+        log.info("Initializing FallbackChatModel with primary: {} and fallbacks: {}, {}, {}", primaryModel, fallback1, fallback2, fallback3);
+        return new FallbackChatModel(openAiChatModel, primaryModel, List.of(fallback1, fallback2, fallback3));
     }
 
     // Se ha eliminado el @Bean public VectorStore vectorStore(...) 

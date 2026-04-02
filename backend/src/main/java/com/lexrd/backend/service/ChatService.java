@@ -28,18 +28,18 @@ public class ChatService {
     private final ChatModel chatModel;
     private final VectorStore vectorStore;
 
-    // Prompt para extraer palabras clave de búsqueda
+    // Prompt para reformular la consulta (Query Rewriting / Standalone Question)
     private static final String REWRITE_PROMPT = """
-        Eres un experto extrayendo palabras clave legales en República Dominicana.
-        Lee el mensaje del usuario y conviértelo en una lista de palabras clave para buscar en una base de datos vectorial.
-        - Si el usuario habla de vehículos, choques, licencias o tránsito, INCLUYE obligatoriamente las palabras "Ley 63-17 Tránsito Movilidad".
-        - Si habla de despidos o trabajo, INCLUYE obligatoriamente "Código de Trabajo".
-        - Usa solo conceptos legales, máximo 15 palabras.
-        NO respondas la pregunta. SOLO devuelve las palabras clave para buscar.
+        Eres un experto legal en República Dominicana.
+        Tu tarea es reformular la pregunta del usuario para que sea una pregunta clara, completa y autocontenida, ideal para buscar en una base de datos vectorial de leyes dominicanas.
+        - Si la pregunta es vaga pero menciona temas como vehículos, choques o tránsito, asegúrate de incluir "Ley 63-17 de Movilidad, Transporte Terrestre, Tránsito y Seguridad Vial".
+        - Si menciona despidos, salario, o trabajo, incluye "Código de Trabajo".
+        - NO respondas a la pregunta, SOLO devuelve la pregunta reformulada.
+        - Mantén la intención semántica original y el vocabulario legal.
         
-        Mensaje del usuario: {user_message}
+        Pregunta original del usuario: {user_message}
         
-        Palabras clave de búsqueda:
+        Pregunta reformulada para búsqueda:
         """;
 
     private static final String SYSTEM_PROMPT = """
@@ -56,6 +56,45 @@ public class ChatService {
         {context}
         """;
 
+    private String determineTargetFile(String message) {
+        if (message == null) return null;
+        String msg = message.toLowerCase();
+        if (msg.contains("código de trabajo") || msg.contains("codigo de trabajo") || msg.contains("laboral") || msg.contains("empleado") || msg.contains("empleador") || msg.contains("salario") || msg.contains("despido")) {
+            return "codigo-trabajo.pdf";
+        }
+        if (msg.contains("tránsito") || msg.contains("transito") || msg.contains("vehículo") || msg.contains("choque") || msg.contains("ley 63-17")) {
+            return "Ley-No.-63-17-de-Movilidad-Transporte-Terrestre-Transito-y-Seguridad-Vial-en-Republica-Dominicana-Deroga-la-ley-241-1.pdf";
+        }
+        if (msg.contains("procesal penal")) {
+            return "codigo-procesal-penal.pdf";
+        }
+        if (msg.contains("código penal") || msg.contains("codigo penal") || msg.contains("delito") || msg.contains("robo") || msg.contains("homicidio")) {
+            return "codigo-penal.pdf";
+        }
+        if (msg.contains("procedimiento civil")) {
+            return "codigo-procedimiento-civil.pdf";
+        }
+        if (msg.contains("código civil") || msg.contains("codigo civil") || msg.contains("contrato") || msg.contains("matrimonio") || msg.contains("divorcio") || msg.contains("demanda civil")) {
+            return "codigo-civil.pdf";
+        }
+        if (msg.contains("constitución") || msg.contains("constitucion") || msg.contains("derechos fundamentales")) {
+            return "constitucion.pdf";
+        }
+        if (msg.contains("código tributario") || msg.contains("codigo tributario") || msg.contains("impuesto") || msg.contains("dgii")) {
+            return "codigo-tributario.pdf";
+        }
+        if (msg.contains("niño") || msg.contains("niña") || msg.contains("adolescente") || msg.contains("menor") || msg.contains("nna")) {
+            return "codigo-nna.pdf";
+        }
+        if (msg.contains("comercio") || msg.contains("comercial") || msg.contains("empresa") || msg.contains("sociedad")) {
+            return "codigo-comercio.pdf";
+        }
+        if (msg.contains("monetario") || msg.contains("financiero") || msg.contains("banco")) {
+            return "codigo-monetario-financiero.pdf";
+        }
+        return null;
+    }
+
     public ChatResponse processChat(ChatRequest request) {
         log.info("Processing chat request for message: {}", request.getMessage());
 
@@ -71,13 +110,22 @@ public class ChatService {
         log.info("Consulta optimizada para pgvector: {}", optimizedQuery);
 
         // --- PASO 2: BÚSQUEDA VECTORIAL CON LA CONSULTA OPTIMIZADA ---
-        // Buscamos usando las palabras clave, NO la historia original
-        List<Document> similarDocuments = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(optimizedQuery) // <--- Usamos el query optimizado aquí
-                        .topK(20)
-                        // .similarityThreshold(0.5) // Eliminado para evitar falsos negativos en pgvector
-                        .build());
+        SearchRequest searchRequest = SearchRequest.builder()
+                .query(optimizedQuery)
+                .topK(10) // Reducido para evitar diluir el contexto
+                .build();
+                
+        String targetFile = determineTargetFile(request.getMessage());
+        if (targetFile != null) {
+            log.info("Filtrando búsqueda vectorial por archivo: {}", targetFile);
+            searchRequest = SearchRequest.builder()
+                .query(optimizedQuery)
+                .topK(10)
+                .filterExpression("file_name == '" + targetFile + "'")
+                .build();
+        }
+
+        List<Document> similarDocuments = vectorStore.similaritySearch(searchRequest);
 
         String context = similarDocuments.stream()
                 .map(Document::getText)
@@ -117,11 +165,22 @@ public class ChatService {
                 .getResult().getOutput().getText();
 
         // --- PASO 2: BÚSQUEDA VECTORIAL ---
-        List<Document> similarDocuments = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(optimizedQuery)
-                        .topK(20)
-                        .build());
+        SearchRequest searchRequest = SearchRequest.builder()
+                .query(optimizedQuery)
+                .topK(10)
+                .build();
+                
+        String targetFile = determineTargetFile(request.getMessage());
+        if (targetFile != null) {
+            log.info("Filtrando búsqueda vectorial en streaming por archivo: {}", targetFile);
+            searchRequest = SearchRequest.builder()
+                .query(optimizedQuery)
+                .topK(10)
+                .filterExpression("file_name == '" + targetFile + "'")
+                .build();
+        }
+
+        List<Document> similarDocuments = vectorStore.similaritySearch(searchRequest);
 
         String context = similarDocuments.stream()
                 .map(Document::getText)

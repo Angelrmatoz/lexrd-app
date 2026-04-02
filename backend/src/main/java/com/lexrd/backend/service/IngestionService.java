@@ -91,6 +91,8 @@ public class IngestionService {
             List<Document> structuralDocuments = structuralSplitter.apply(documents);
 
             TokenTextSplitter splitter = TokenTextSplitter.builder()
+                    .withChunkSize(800)
+                    .withMinChunkSizeChars(200)
                     .withKeepSeparator(true)
                     .build();
             List<Document> splitDocuments = splitter.apply(structuralDocuments);

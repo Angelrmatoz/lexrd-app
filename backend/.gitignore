@@ -36,6 +36,7 @@ build/
 .env
 .env.local
 .env.production
+error.txt
 
 ### LexRD specific ###
 vectorstore.json
