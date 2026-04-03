@@ -47,7 +47,7 @@ public class ChatService {
         Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
         
         A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
-        Si el contexto no contiene información suficiente para dar una respuesta definitiva, admítelo, pero intenta orientar al usuario con lo que tengas disponible.
+        Si la respuesta no está explícitamente en el CONTEXTO LEGAL proporcionado, DEBES decir que no tienes información suficiente basándote en los documentos cargados. NO inventes procedimientos, ni cites leyes derogadas, ni uses conocimientos de otros países.
         Menciona siempre que tus respuestas son informativas y no sustituyen el consejo de un abogado profesional.
         
         Utiliza un tono formal, claro y servicial.
@@ -56,43 +56,42 @@ public class ChatService {
         {context}
         """;
 
+    private static final String ROUTER_PROMPT = """
+        El usuario hizo la siguiente pregunta legal en República Dominicana:
+        "{user_message}"
+        
+        ¿En cuál de estos códigos o leyes dominicanas es más probable encontrar la respuesta?
+        Opciones disponibles:
+        - codigo-trabajo.pdf
+        - Ley-No.-63-17-de-Movilidad-Transporte-Terrestre-Transito-y-Seguridad-Vial-en-Republica-Dominicana-Deroga-la-ley-241-1.pdf
+        - codigo-procesal-penal.pdf
+        - codigo-penal.pdf
+        - codigo-procedimiento-civil.pdf
+        - codigo-civil.pdf
+        - constitucion.pdf
+        - codigo-tributario.pdf
+        - codigo-nna.pdf
+        - codigo-comercio.pdf
+        - codigo-monetario-financiero.pdf
+        
+        Responde SOLO con el nombre exacto del archivo de la opción correspondiente. Si no estás seguro o la pregunta abarca múltiples leyes, responde exactamente con la palabra "ALL". No agregues ninguna otra palabra, puntuación o explicación a tu respuesta.
+        """;
+
     private String determineTargetFile(String message) {
-        if (message == null) return null;
-        String msg = message.toLowerCase();
-        if (msg.contains("código de trabajo") || msg.contains("codigo de trabajo") || msg.contains("laboral") || msg.contains("empleado") || msg.contains("empleador") || msg.contains("salario") || msg.contains("despido")) {
-            return "codigo-trabajo.pdf";
+        if (message == null || message.isBlank()) return null;
+        
+        log.info("Determinando el archivo objetivo mediante LLM para la pregunta...");
+        SystemPromptTemplate routerTemplate = new SystemPromptTemplate(ROUTER_PROMPT);
+        var routerMessage = routerTemplate.createMessage(Map.of("user_message", message));
+        
+        String result = chatModel.call(new Prompt(List.of(routerMessage)))
+                .getResult().getOutput().getText().trim();
+                
+        if (result.equalsIgnoreCase("ALL") || result.isBlank()) {
+            return null;
         }
-        if (msg.contains("tránsito") || msg.contains("transito") || msg.contains("vehículo") || msg.contains("choque") || msg.contains("ley 63-17")) {
-            return "Ley-No.-63-17-de-Movilidad-Transporte-Terrestre-Transito-y-Seguridad-Vial-en-Republica-Dominicana-Deroga-la-ley-241-1.pdf";
-        }
-        if (msg.contains("procesal penal")) {
-            return "codigo-procesal-penal.pdf";
-        }
-        if (msg.contains("código penal") || msg.contains("codigo penal") || msg.contains("delito") || msg.contains("robo") || msg.contains("homicidio")) {
-            return "codigo-penal.pdf";
-        }
-        if (msg.contains("procedimiento civil")) {
-            return "codigo-procedimiento-civil.pdf";
-        }
-        if (msg.contains("código civil") || msg.contains("codigo civil") || msg.contains("contrato") || msg.contains("matrimonio") || msg.contains("divorcio") || msg.contains("demanda civil")) {
-            return "codigo-civil.pdf";
-        }
-        if (msg.contains("constitución") || msg.contains("constitucion") || msg.contains("derechos fundamentales")) {
-            return "constitucion.pdf";
-        }
-        if (msg.contains("código tributario") || msg.contains("codigo tributario") || msg.contains("impuesto") || msg.contains("dgii")) {
-            return "codigo-tributario.pdf";
-        }
-        if (msg.contains("niño") || msg.contains("niña") || msg.contains("adolescente") || msg.contains("menor") || msg.contains("nna")) {
-            return "codigo-nna.pdf";
-        }
-        if (msg.contains("comercio") || msg.contains("comercial") || msg.contains("empresa") || msg.contains("sociedad")) {
-            return "codigo-comercio.pdf";
-        }
-        if (msg.contains("monetario") || msg.contains("financiero") || msg.contains("banco")) {
-            return "codigo-monetario-financiero.pdf";
-        }
-        return null;
+        
+        return result;
     }
 
     public ChatResponse processChat(ChatRequest request) {
