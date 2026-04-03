@@ -27,6 +27,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 backend/error.txt
+backend/responseAI.txt
 
 # local env files
 .env.local

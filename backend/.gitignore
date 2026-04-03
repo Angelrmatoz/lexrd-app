@@ -37,6 +37,7 @@ build/
 .env.local
 .env.production
 error.txt
+responseAI.txt
 
 ### LexRD specific ###
 vectorstore.json
