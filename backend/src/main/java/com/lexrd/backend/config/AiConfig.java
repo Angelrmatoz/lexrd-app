@@ -2,12 +2,10 @@ package com.lexrd.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-
 import java.util.List;
 
 @Configuration
@@ -23,7 +21,7 @@ public class AiConfig {
     @Value("${ai.model.fallback2}")
     private String fallback2;
 
-    @Value("${ai.model.fallback3}")
+    @Value("gemma-4-31b-it")
     private String fallback3;
 
     /**
@@ -32,9 +30,10 @@ public class AiConfig {
      */
     @Bean
     @Primary
-    public ChatModel chatModel(OpenAiChatModel openAiChatModel) {
-        log.info("Initializing FallbackChatModel with primary: {} and fallbacks: {}, {}, {}", primaryModel, fallback1, fallback2, fallback3);
-        return new FallbackChatModel(openAiChatModel, primaryModel, List.of(fallback1, fallback2, fallback3));
+    public ChatModel fallbackChatModel(ChatModel defaultChatModel) {
+        log.info("Inicializando FallbackChatModel con primario: {} y respaldos: {}, {}", 
+                 primaryModel, fallback1, fallback2);
+        return new FallbackChatModel(defaultChatModel, primaryModel, List.of(fallback1, fallback2, fallback3));
     }
 
     // Se ha eliminado el @Bean public VectorStore vectorStore(...) 

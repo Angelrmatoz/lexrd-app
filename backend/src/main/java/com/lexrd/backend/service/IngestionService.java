@@ -31,7 +31,7 @@ public class IngestionService {
     public boolean isFileIngested(String filename) {
         try {
             Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM vector_store WHERE metadata->>'file_name' = ?", 
+                "SELECT COUNT(*) FROM vector_store WHERE metadata->>'filename' = ?", 
                 Integer.class, 
                 filename
             );
@@ -75,24 +75,35 @@ public class IngestionService {
         try {
             // 1. Read PDF content
             TikaDocumentReader tikaReader = new TikaDocumentReader(resource);
-            List<Document> documents = tikaReader.get();
+            List<Document> rawDocuments = tikaReader.get();
 
-            // Insertar el metadata del filename manualmente para asegurarnos que exista
+            // Limpiar el texto extraído por Tika (Guiones de fin de línea y saltos extra)
             String fileName = resource.getFilename();
-            documents.forEach(doc -> {
+            List<Document> documents = new ArrayList<>();
+            
+            for (Document doc : rawDocuments) {
                 if (doc.getText() == null || doc.getText().isBlank()) {
-                    log.warn("Documento extraído de {} está vacío o es nulo", fileName);
+                    log.warn("Documento extraído vacío: {}", fileName);
+                    continue;
                 }
-                doc.getMetadata().put("file_name", fileName);
-            });
+                
+                String cleanText = doc.getText()
+                        .replaceAll("(?<=[a-zA-ZáéíóúÁÉÍÓÚñÑ])-\r?\n(?=[a-zA-ZáéíóúÁÉÍÓÚñÑ])", "")
+                        // Eliminamos el reemplazo de saltos de línea para no romper el Splitter
+                        .replaceAll("[ \\t]{2,}", " "); // Limpia espacios múltiples horizontales, pero deja los saltos (\n)
+                
+                Document cleanDoc = new Document(doc.getId(), cleanText, doc.getMetadata());
+                cleanDoc.getMetadata().put("filename", fileName);
+                documents.add(cleanDoc);
+            }
 
             // 2. Split into chunks semantically respecting Dominican Law Structure
             StructuralLawSplitter structuralSplitter = new StructuralLawSplitter();
             List<Document> structuralDocuments = structuralSplitter.apply(documents);
 
             TokenTextSplitter splitter = TokenTextSplitter.builder()
-                    .withChunkSize(800)
-                    .withMinChunkSizeChars(200)
+                    .withChunkSize(400) // Límite seguro para embeddings de 512 tokens
+                    .withMinChunkSizeChars(100)
                     .withKeepSeparator(true)
                     .build();
             List<Document> splitDocuments = splitter.apply(structuralDocuments);
@@ -103,10 +114,8 @@ public class IngestionService {
                 int end = Math.min(splitDocuments.size(), i + batchSize);
                 List<Document> batch = new ArrayList<>(splitDocuments.subList(i, end));
 
-                // DEBUG: Este es el que más llenaba la consola (spam), lo pasamos a debug
                 log.debug("Ingestando lote {} a {} de {} (Local Embedding)", i, end, splitDocuments.size());
                 vectorStore.add(batch);
-                // Ya no necesitamos dormir hilos porque el modelo es local 🚀
             }
 
             // 4. Local persistence (solo si usaran SimpleVectorStore)
@@ -115,7 +124,6 @@ public class IngestionService {
             }
 
         } catch (Exception e) {
-            // ERROR: Siempre hay que verlos
             log.error("Error al ingestar el PDF: {}", resource.getFilename(), e);
             throw new RuntimeException("Error during PDF ingestion", e);
         }

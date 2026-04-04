@@ -27,6 +27,8 @@ public class StructuralLawSplitter extends TextSplitter {
             String chunkContent = text.substring(lastEnd, matcher.start()).trim();
 
             if (!chunkContent.isEmpty()) {
+                // AQUÍ limpiamos los saltos de línea del contenido del artículo
+                chunkContent = chunkContent.replaceAll("\r\n|\r|\n", " ").replaceAll("\\s{2,}", " ");
                 chunks.add(lastChunkHeading + "\n" + chunkContent);
             }
             
@@ -37,6 +39,7 @@ public class StructuralLawSplitter extends TextSplitter {
         if (lastEnd < text.length()) {
             String remainingContent = text.substring(lastEnd).trim();
             if (!remainingContent.isEmpty()) {
+                remainingContent = remainingContent.replaceAll("\r\n|\r|\n", " ").replaceAll("\\s{2,}", " ");
                 chunks.add(lastChunkHeading + "\n" + remainingContent);
             }
         }
@@ -54,7 +57,7 @@ public class StructuralLawSplitter extends TextSplitter {
         StringBuilder currentGroup = new StringBuilder();
 
         for (String chunk : chunks) {
-            if (currentGroup.length() + chunk.length() < 4000) { 
+            if (currentGroup.length() + chunk.length() < 1500) { 
                 currentGroup.append("\n\n").append(chunk);
             } else {
                 if (currentGroup.length() > 0) {

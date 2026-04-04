@@ -1,13 +1,10 @@
 package com.lexrd.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 
 import java.util.List;
@@ -15,12 +12,12 @@ import java.util.List;
 @Slf4j
 public class FallbackChatModel implements ChatModel {
 
-    private final OpenAiChatModel openAiChatModel;
+    private final ChatModel baseChatModel;
     private final String primaryModel;
     private final List<String> fallbackModels;
 
-    public FallbackChatModel(OpenAiChatModel openAiChatModel, String primaryModel, List<String> fallbackModels) {
-        this.openAiChatModel = openAiChatModel;
+    public FallbackChatModel(ChatModel baseChatModel, String primaryModel, List<String> fallbackModels) {
+        this.baseChatModel = baseChatModel;
         this.primaryModel = primaryModel;
         this.fallbackModels = fallbackModels;
     }
@@ -50,31 +47,16 @@ public class FallbackChatModel implements ChatModel {
     }
 
     private ChatResponse callWithModel(Prompt prompt, String modelName) {
-        ChatOptions options = prompt.getOptions();
-        OpenAiChatOptions updatedOptions;
+        ChatOptions newOptions = OpenAiChatOptions.builder()
+                .model(modelName)
+                .build();
         
-        if (options instanceof OpenAiChatOptions openAiOptions) {
-            updatedOptions = OpenAiChatOptions.builder()
-                    .model(modelName)
-                    .frequencyPenalty(openAiOptions.getFrequencyPenalty())
-                    .maxTokens(openAiOptions.getMaxTokens())
-                    .presencePenalty(openAiOptions.getPresencePenalty())
-                    .stop(openAiOptions.getStop())
-                    .temperature(openAiOptions.getTemperature())
-                    .topP(openAiOptions.getTopP())
-                    .build();
-        } else {
-            updatedOptions = OpenAiChatOptions.builder()
-                    .model(modelName)
-                    .build();
-        }
-        
-        Prompt updatedPrompt = new Prompt(prompt.getInstructions(), updatedOptions);
-        return openAiChatModel.call(updatedPrompt);
+        Prompt updatedPrompt = new Prompt(prompt.getInstructions(), newOptions);
+        return baseChatModel.call(updatedPrompt);
     }
 
     @Override
     public ChatOptions getDefaultOptions() {
-        return openAiChatModel.getDefaultOptions();
+        return baseChatModel.getDefaultOptions();
     }
 }

@@ -1,6 +1,6 @@
 # Backend - Agents Documentation
 
-El corazón de IA de LexRD, construido con Spring Boot y Spring AI.
+El corazón de IA de LexRD, construido con Java 25, Spring Boot 4.0.4 y Spring AI.
 
 ## Arquitectura de IA
 El backend implementa un patrón RAG (Retrieval-Augmented Generation) avanzado:

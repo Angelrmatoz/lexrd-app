@@ -7,9 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@SpringBootApplication(exclude = {
-        org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration.class
-})
+@SpringBootApplication
 @EnableAsync
 public class BackendApplication {
 
