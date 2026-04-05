@@ -15,18 +15,18 @@ public class EmbeddingConfig {
     @Primary
     public TransformersEmbeddingModel transformersEmbeddingModel() throws MalformedURLException {
         TransformersEmbeddingModel embeddingModel = new TransformersEmbeddingModel();
-        
-        // Forzando explícitamente el modelo MPNet de 768 dimensiones
-        // para evitar el bug de Spring AI 2.0.0-M3 que usa MiniLM (384D) por defecto.
-        embeddingModel.setModelResource(new UrlResource("https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/onnx/model.onnx"));
-        embeddingModel.setTokenizerResource(new UrlResource("https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer.json"));
-        
+
+        // Usamos el modelo Multilingüe de 768 dimensiones (ONNX)
+        // Esto permite entender el español sin cambiar la configuración de pgvector.
+        embeddingModel.setModelResource(new UrlResource("https://huggingface.co/Xenova/paraphrase-multilingual-mpnet-base-v2/resolve/main/onnx/model.onnx"));
+        embeddingModel.setTokenizerResource(new UrlResource("https://huggingface.co/Xenova/paraphrase-multilingual-mpnet-base-v2/resolve/main/tokenizer.json"));
+
         try {
             embeddingModel.afterPropertiesSet();
         } catch (Exception e) {
             throw new RuntimeException("Error initializing TransformersEmbeddingModel", e);
         }
-        
+
         return embeddingModel;
     }
 }
