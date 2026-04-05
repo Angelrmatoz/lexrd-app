@@ -26,7 +26,7 @@ public class AiConfig {
 
     /**
      * Fallback configuration for AI chat models.
-     * This will try the primary model and then fall back to others if it fails.
+     * This will try the primary dto and then fall back to others if it fails.
      */
     @Bean
     @Primary

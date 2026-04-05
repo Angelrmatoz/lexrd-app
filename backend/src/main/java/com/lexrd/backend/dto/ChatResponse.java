@@ -1,4 +1,4 @@
-package com.lexrd.backend.model;
+package com.lexrd.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -9,7 +9,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -18,8 +17,8 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
-import com.lexrd.backend.model.ChatRequest;
-import com.lexrd.backend.model.ChatResponse;
+import com.lexrd.backend.dto.ChatRequest;
+import com.lexrd.backend.dto.ChatResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

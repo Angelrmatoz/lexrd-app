@@ -1,7 +1,7 @@
 package com.lexrd.backend.controller;
 
-import com.lexrd.backend.model.ChatRequest;
-import com.lexrd.backend.model.ChatResponse;
+import com.lexrd.backend.dto.ChatRequest;
+import com.lexrd.backend.dto.ChatResponse;
 import com.lexrd.backend.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

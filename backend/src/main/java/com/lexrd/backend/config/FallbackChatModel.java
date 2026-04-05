@@ -24,20 +24,20 @@ public class FallbackChatModel implements ChatModel {
 
     @Override
     public ChatResponse call(Prompt prompt) {
-        // Try primary model
+        // Try primary dto
         try {
-            log.info("Attempting call with primary model: {}", primaryModel);
+            log.info("Attempting call with primary dto: {}", primaryModel);
             return callWithModel(prompt, primaryModel);
         } catch (Exception e) {
-            log.warn("Primary model {} failed: {}. Trying fallbacks...", primaryModel, e.getMessage());
+            log.warn("Primary dto {} failed: {}. Trying fallbacks...", primaryModel, e.getMessage());
             
             // Try fallback models
             for (String fallback : fallbackModels) {
                 try {
-                    log.info("Attempting call with fallback model: {}", fallback);
+                    log.info("Attempting call with fallback dto: {}", fallback);
                     return callWithModel(prompt, fallback);
                 } catch (Exception ex) {
-                    log.warn("Fallback model {} failed: {}", fallback, ex.getMessage());
+                    log.warn("Fallback dto {} failed: {}", fallback, ex.getMessage());
                 }
             }
             
