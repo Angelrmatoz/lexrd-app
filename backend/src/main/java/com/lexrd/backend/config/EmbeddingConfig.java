@@ -15,18 +15,17 @@ public class EmbeddingConfig {
     @Primary
     public TransformersEmbeddingModel transformersEmbeddingModel() throws MalformedURLException {
         TransformersEmbeddingModel embeddingModel = new TransformersEmbeddingModel();
-
-        // Usamos el modelo Multilingüe de 768 dimensiones (ONNX)
-        // Esto permite entender el español sin cambiar la configuración de pgvector.
-        embeddingModel.setModelResource(new UrlResource("https://huggingface.co/Xenova/paraphrase-multilingual-mpnet-base-v2/resolve/main/onnx/model.onnx"));
-        embeddingModel.setTokenizerResource(new UrlResource("https://huggingface.co/Xenova/paraphrase-multilingual-mpnet-base-v2/resolve/main/tokenizer.json"));
-
+        
+        // Jina Embeddings V2 Base ES (Bilingüe Español, 768 dimensiones)
+        embeddingModel.setModelResource(new UrlResource("https://huggingface.co/jinaai/jina-embeddings-v2-base-es/resolve/main/onnx/model.onnx"));
+        embeddingModel.setTokenizerResource(new UrlResource("https://huggingface.co/jinaai/jina-embeddings-v2-base-es/resolve/main/tokenizer.json"));
+        
         try {
             embeddingModel.afterPropertiesSet();
         } catch (Exception e) {
             throw new RuntimeException("Error initializing TransformersEmbeddingModel", e);
         }
-
+        
         return embeddingModel;
     }
 }

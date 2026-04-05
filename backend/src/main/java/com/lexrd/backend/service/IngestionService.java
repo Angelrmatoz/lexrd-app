@@ -102,7 +102,7 @@ public class IngestionService {
             List<Document> structuralDocuments = structuralSplitter.apply(documents);
 
             TokenTextSplitter splitter = TokenTextSplitter.builder()
-                    .withChunkSize(400) // Límite seguro para embeddings de 512 tokens
+                    .withChunkSize(400) // Límite seguro por debajo del máximo de 512 de ONNX
                     .withMinChunkSizeChars(100)
                     .withKeepSeparator(true)
                     .build();

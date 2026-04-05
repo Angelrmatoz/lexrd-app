@@ -57,6 +57,7 @@ public class StructuralLawSplitter extends TextSplitter {
         StringBuilder currentGroup = new StringBuilder();
 
         for (String chunk : chunks) {
+            // Límite de 1500 caracteres (aprox 350-400 tokens) para evitar truncamiento
             if (currentGroup.length() + chunk.length() < 1500) { 
                 currentGroup.append("\n\n").append(chunk);
             } else {
