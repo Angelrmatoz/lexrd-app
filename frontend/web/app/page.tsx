@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Header } from "@/components/Header";
+import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { ChatInput } from "@/components/ChatInput";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -32,7 +32,7 @@ export default function Page() {
       <AppSidebar onNewChat={clearMessages} />
       
       <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
-        <Header onNewChat={clearMessages} />
+        <NavBar onNewChat={clearMessages} />
 
         {/* Main Canvas */}
         <main className="flex-grow flex flex-col pt-24 pb-32 overflow-y-auto hide-scrollbar">

@@ -9,7 +9,7 @@ interface HeaderProps {
   onNewChat: () => void;
 }
 
-export function Header({ onNewChat }: HeaderProps) {
+export function NavBar({ onNewChat }: HeaderProps) {
   const pathname = usePathname();
 
   return (

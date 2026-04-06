@@ -13,6 +13,7 @@ El proyecto es un **Turborepo** monorepo que integra un ecosistema de TypeScript
 3.  **Packages (`packages/`)**: Componentes y configuraciones compartidas.
 
 ## Estado Actual y Cambios Recientes
+-   **Branding**: Actualizado el icono de la aplicación (`icon.svg`) y configurado en la metadata de Next.js.
 -   **IA Core**: Implementado **Query Rewriting** en `ChatService.java` para mejorar la recuperación de documentos legales.
 -   **Configuración de Modelos**: Uso de OpenRouter con URL base corregida (`/api`) para evitar duplicación de rutas. Modelos primarios: Nvidia Nemotron 70B y Llama 3.1.
 -   **Seguridad**: Archivo `SecurityConfig.java` configurado para desactivar CSRF en desarrollo, permitiendo pruebas POST directas desde clientes externos (Postman).

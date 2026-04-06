@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/Header";
+import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useChatStore } from "@/store/useChatStore";
@@ -68,7 +68,7 @@ export default function LibraryPage() {
       <AppSidebar onNewChat={handleNewChat} />
 
       <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
-        <Header onNewChat={handleNewChat} />
+        <NavBar onNewChat={handleNewChat} />
 
         <main className="flex-grow pt-28 pb-12 px-6 overflow-y-auto hide-scrollbar">
           <div className="max-w-4xl mx-auto space-y-16">
