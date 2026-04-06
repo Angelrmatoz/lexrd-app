@@ -5,18 +5,12 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ChatInput } from "../components/ChatInput";
 import { AppSidebar } from "../components/AppSidebar";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  sources?: string[];
-  time?: string;
-}
+import { Message } from "@/types/chat";
+import { useChatStore } from "@/store/useChatStore";
 
 export default function Page() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages, isLoading, sendMessage, clearMessages } = useChatStore();
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -27,186 +21,137 @@ export default function Page() {
     scrollToBottom();
   }, [messages]);
 
-  const getCurrentTime = () => {
-    return new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      role: "user",
-      content: input,
-      time: getCurrentTime(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: input }),
-      });
-
-      if (!response.ok) throw new Error("Error en la respuesta del servidor");
-
-      const data = await response.json();
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: data.response,
-        sources: data.sources,
-        time: getCurrentTime(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Hubo un error al procesar tu solicitud. Por favor intenta de nuevo.",
-          time: getCurrentTime(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    const message = input;
+    setInput(""); // Limpiamos el input local inmediatamente para mejor UX
+    await sendMessage(message);
   };
-
-  const clearChat = () => setMessages([]);
 
   return (
-    <div className="flex flex-col min-h-screen text-on-surface bg-surface">
-      <AppSidebar onNewChat={clearChat} />
+    <div className="flex min-h-screen text-on-surface bg-surface">
+      <AppSidebar onNewChat={clearMessages} />
       
-      <Header onNewChat={clearChat} />
+      <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
+        <Header onNewChat={clearMessages} />
 
-      {/* Main Canvas */}
-      <main className="flex-grow flex flex-col pt-16 pb-32 overflow-y-auto hide-scrollbar">
-        <div className="w-full max-w-3xl mx-auto px-6 py-12 flex-grow">
-          {messages.length === 0 ? (
-            /* Welcome State */
-            <div className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-2xl">
-                <span className="material-symbols-outlined text-4xl">gavel</span>
+        {/* Main Canvas */}
+        <main className="flex-grow flex flex-col pt-16 pb-32 overflow-y-auto hide-scrollbar">
+          <div className="w-full max-w-3xl mx-auto px-6 py-12 flex-grow">
+            {messages.length === 0 ? (
+              /* Welcome State */
+              <div className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-2xl">
+                  <span className="material-symbols-outlined text-4xl">gavel</span>
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
+                    The Digital Jurist
+                  </h1>
+                  <p className="text-on-surface-variant text-lg max-w-md mx-auto">
+                    Expert Dominican legal analysis, regulatory intelligence, and
+                    jurisprudence at your fingertips.
+                  </p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
-                  The Digital Jurist
-                </h1>
-                <p className="text-on-surface-variant text-lg max-w-md mx-auto">
-                  Expert Dominican legal analysis, regulatory intelligence, and
-                  jurisprudence at your fingertips.
-                </p>
-              </div>
-            </div>
-          ) : (
-            /* Message Feed */
-            <div className="space-y-12">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
-                >
-                  {msg.role === "user" ? (
-                    <>
-                      <div className="max-w-[85%] bg-surface-container-highest text-on-surface px-6 py-4 rounded-xl rounded-tr-none shadow-sm">
-                        <p className="text-[15px] leading-relaxed">
-                          {msg.content}
-                        </p>
-                      </div>
-                      <span className="text-[10px] uppercase tracking-widest text-on-surface-variant/50 mt-2 mr-1">
-                        Tú • {msg.time}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="flex items-start gap-4 w-full">
-                      <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
-                        <span
-                          className="material-symbols-outlined text-[20px]"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          smart_toy
-                        </span>
-                      </div>
-                      <div className="flex-grow space-y-6">
-                        <div className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light">
-                          {msg.content.split("\n").map((line, i) => (
-                            <p key={i}>{line}</p>
-                          ))}
+            ) : (
+              /* Message Feed */
+              <div className="space-y-12">
+                {messages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                  >
+                    {msg.role === "user" ? (
+                      <>
+                        <div className="max-w-[85%] bg-surface-container-highest text-on-surface px-6 py-4 rounded-xl rounded-tr-none shadow-sm">
+                          <p className="text-[15px] leading-relaxed">
+                            {msg.content}
+                          </p>
                         </div>
-
-                        {/* Citations / Sources */}
-                        {msg.sources && msg.sources.length > 0 && (
-                          <div className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[14px]">
-                                menu_book
-                              </span>
-                              Fuentes Jurídicas
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {msg.sources.map((source, sIdx) => (
-                                <div
-                                  key={sIdx}
-                                  className="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/5 hover:border-tertiary/30 transition-all cursor-pointer group"
-                                >
-                                  <p className="text-xs font-semibold text-tertiary mb-1 group-hover:text-on-surface transition-colors">
-                                    {source}
-                                  </p>
-                                  <p className="text-[10px] text-on-surface-variant leading-tight opacity-70">
-                                    Referencia oficial del sistema legal
-                                    dominicano.
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant/50 block">
-                          LexRD • {msg.time}
+                        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant/50 mt-2 mr-1">
+                          Tú • {msg.time}
                         </span>
+                      </>
+                    ) : (
+                      <div className="flex items-start gap-4 w-full">
+                        <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
+                          <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            smart_toy
+                          </span>
+                        </div>
+                        <div className="flex-grow space-y-6">
+                          <div className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light">
+                            {msg.content.split("\n").map((line, i) => (
+                              <p key={i}>{line}</p>
+                            ))}
+                          </div>
+
+                          {/* Citations / Sources */}
+                          {msg.sources && msg.sources.length > 0 && (
+                            <div className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3">
+                              <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[14px]">
+                                  menu_book
+                                </span>
+                                Fuentes Jurídicas
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {msg.sources.map((source, sIdx) => (
+                                  <div
+                                    key={sIdx}
+                                    className="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/5 hover:border-tertiary/30 transition-all cursor-pointer group"
+                                  >
+                                    <p className="text-xs font-semibold text-tertiary mb-1 group-hover:text-on-surface transition-colors">
+                                      {source}
+                                    </p>
+                                    <p className="text-[10px] text-on-surface-variant leading-tight opacity-70">
+                                      Referencia oficial del sistema legal
+                                      dominicano.
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <span className="text-[10px] uppercase tracking-widest text-on-surface-variant/50 block">
+                            LexRD • {msg.time}
+                          </span>
+                        </div>
                       </div>
+                    )}
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex items-start gap-4 w-full animate-pulse">
+                    <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-dominican-red/50">
+                      <span className="material-symbols-outlined text-[20px]">
+                        smart_toy
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex items-start gap-4 w-full animate-pulse">
-                  <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-dominican-red/50">
-                    <span className="material-symbols-outlined text-[20px]">
-                      smart_toy
-                    </span>
+                    <div className="flex-grow space-y-4">
+                      <div className="h-4 bg-surface-container-high rounded w-3/4"></div>
+                      <div className="h-4 bg-surface-container-high rounded w-1/2"></div>
+                    </div>
                   </div>
-                  <div className="flex-grow space-y-4">
-                    <div className="h-4 bg-surface-container-high rounded w-3/4"></div>
-                    <div className="h-4 bg-surface-container-high rounded w-1/2"></div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-      </main>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+        </main>
 
-      <ChatInput
-        input={input}
-        setInput={setInput}
-        onSend={handleSend}
-        isLoading={isLoading}
-      />
+        <ChatInput
+          input={input}
+          setInput={setInput}
+          onSend={handleSend}
+          isLoading={isLoading}
+        />
 
-      <Footer />
+        <Footer />
+      </div>
 
       {/* Decorative Elements (Ambient Shadows) */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
