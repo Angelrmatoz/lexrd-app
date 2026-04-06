@@ -21,7 +21,7 @@ public class AiConfig {
     @Value("${ai.model.fallback2}")
     private String fallback2;
 
-    @Value("gemma-4-31b-it")
+    @Value("${ai.model.fallback3}")
     private String fallback3;
 
     /**
