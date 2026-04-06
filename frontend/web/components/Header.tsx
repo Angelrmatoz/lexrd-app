@@ -36,14 +36,13 @@ export function Header({ onNewChat }: HeaderProps) {
               Library
             </a>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <button
               onClick={onNewChat}
               className="flex items-center gap-2 bg-primary text-on-primary px-4 py-1.5 rounded-full font-bold text-xs active:scale-95 transition-transform hover:opacity-90 shadow-sm"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              <span className="hidden sm:inline">New Chat</span>
-              <span className="sm:hidden">New</span>
+              <span>New Chat</span>
             </button>
           </div>
         </div>
