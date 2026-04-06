@@ -8,12 +8,12 @@
       "dependsOn": ["^build"]
     },
     "dev": {
-      "cache": false,
+      "cache": true,
       "persistent": true
     },
     "lint": {},
     "clean": {
-      "cache": false
+      "cache": true
     }
   }
 }

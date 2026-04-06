@@ -70,7 +70,7 @@ export default function LibraryPage() {
       <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
         <Header onNewChat={handleNewChat} />
 
-        <main className="flex-grow pt-24 pb-32 px-6 overflow-y-auto hide-scrollbar">
+        <main className="flex-grow pt-28 pb-12 px-6 overflow-y-auto hide-scrollbar">
           <div className="max-w-4xl mx-auto space-y-16">
             {/* Project Hero */}
             <div className="space-y-6 text-center md:text-left">
@@ -94,7 +94,7 @@ export default function LibraryPage() {
               {categories.map((category, idx) => (
                 <div 
                   key={idx}
-                  className="group bg-surface-container-lowest border border-outline-variant/5 hover:border-tertiary/20 p-8 rounded-2xl transition-all duration-300 flex flex-col space-y-4"
+                  className="group bg-surface-container-lowest border border-outline-variant/5 hover:border-tertiary/30 p-8 rounded-2xl transition-all duration-300 flex flex-col space-y-4"
                 >
                   <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center group-hover:scale-110 transition-transform">
                     {category.icon}
@@ -127,10 +127,10 @@ export default function LibraryPage() {
                 citas mantengan el contexto original del legislador.
               </p>
             </div>
+
+            <Footer />
           </div>
         </main>
-
-        <Footer />
       </div>
 
       {/* Decorative Elements */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu } from "lucide-react";
+import { Menu, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,52 +13,58 @@ export function Header({ onNewChat }: HeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-surface-container-low border-b border-outline-variant/10">
-      <div className="flex justify-between items-center w-full px-6 py-4 h-16 max-w-7xl mx-auto">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="md:hidden">
-            <Menu className="size-5 text-on-surface" />
-          </SidebarTrigger>
-          <Link href="/" className="text-2xl font-black tracking-tighter uppercase text-white">
-            <span>Lex</span>
-            <span className="text-dominican-red">R</span>
-            <span className="text-dominican-blue">D</span>
-          </Link>
-        </div>
-        <div className="flex items-center gap-6">
-          <nav className="hidden md:flex items-center gap-3 text-sm font-medium">
-            <Link
-              className={`transition-colors duration-200 px-3 py-1 rounded-md ${
-                pathname === "/" 
-                ? "text-on-surface font-bold border-b-2 border-dominican-red rounded-none" 
-                : "text-on-surface-variant hover:bg-surface-container-high"
-              }`}
-              href="/"
-            >
-              Chat
+    <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <header className="w-full max-w-5xl bg-surface-container-low/70 backdrop-blur-xl border border-outline-variant/10 rounded-2xl shadow-2xl shadow-black/20 pointer-events-auto">
+        <div className="flex justify-between items-center w-full px-6 py-2 h-14">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="md:hidden">
+              <Menu className="size-5 text-on-surface" />
+            </SidebarTrigger>
+            <Link href="/" className="text-xl font-black tracking-tighter uppercase text-white flex items-center gap-1">
+              <span>Lex</span>
+              <div className="flex">
+                <span className="text-dominican-red">R</span>
+                <span className="text-dominican-blue">D</span>
+              </div>
             </Link>
-            <Link
-              className={`transition-colors duration-200 px-3 py-1 rounded-md ${
-                pathname === "/library" 
-                ? "text-on-surface font-bold border-b-2 border-dominican-red rounded-none" 
-                : "text-on-surface-variant hover:bg-surface-container-high"
-              }`}
-              href="/library"
-            >
-              Library
-            </Link>
-          </nav>
-          <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={onNewChat}
-              className="flex items-center gap-2 bg-primary text-on-primary px-4 py-1.5 rounded-full font-bold text-xs active:scale-95 transition-transform hover:opacity-90 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              <span>New Chat</span>
-            </button>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.15em]">
+              <Link
+                className={`transition-all duration-300 px-4 py-1.5 rounded-xl ${
+                  pathname === "/" 
+                  ? "bg-surface-container-highest text-on-surface shadow-inner" 
+                  : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-high/50"
+                }`}
+                href="/"
+              >
+                Chat
+              </Link>
+              <Link
+                className={`transition-all duration-300 px-4 py-1.5 rounded-xl ${
+                  pathname === "/library" 
+                  ? "bg-surface-container-highest text-on-surface shadow-inner" 
+                  : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-high/50"
+                }`}
+                href="/library"
+              >
+                Library
+              </Link>
+            </nav>
+            
+            <div className="hidden md:flex items-center">
+              <button
+                onClick={onNewChat}
+                className="flex items-center gap-2 bg-primary text-on-primary px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-all hover:opacity-90 shadow-lg shadow-primary/10"
+              >
+                <Plus className="size-3.5" strokeWidth={3} />
+                <span>New Chat</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

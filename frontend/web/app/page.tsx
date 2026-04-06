@@ -35,7 +35,7 @@ export default function Page() {
         <Header onNewChat={clearMessages} />
 
         {/* Main Canvas */}
-        <main className="flex-grow flex flex-col pt-16 pb-32 overflow-y-auto hide-scrollbar">
+        <main className="flex-grow flex flex-col pt-24 pb-32 overflow-y-auto hide-scrollbar">
           <div className="w-full max-w-3xl mx-auto px-6 py-12 flex-grow">
             {messages.length === 0 ? (
               /* Welcome State */
@@ -124,19 +124,6 @@ export default function Page() {
                     )}
                   </div>
                 ))}
-                {isLoading && (
-                  <div className="flex items-start gap-4 w-full animate-pulse">
-                    <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-dominican-red/50">
-                      <span className="material-symbols-outlined text-[20px]">
-                        smart_toy
-                      </span>
-                    </div>
-                    <div className="flex-grow space-y-4">
-                      <div className="h-4 bg-surface-container-high rounded w-3/4"></div>
-                      <div className="h-4 bg-surface-container-high rounded w-1/2"></div>
-                    </div>
-                  </div>
-                )}
                 <div ref={messagesEndRef} />
               </div>
             )}
@@ -149,8 +136,6 @@ export default function Page() {
           onSend={handleSend}
           isLoading={isLoading}
         />
-
-        <Footer />
       </div>
 
       {/* Decorative Elements (Ambient Shadows) */}
@@ -159,5 +144,6 @@ export default function Page() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"></div>
       </div>
     </div>
+
   );
 }
