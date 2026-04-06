@@ -146,7 +146,7 @@ public class ChatService {
         log.info("Generando respuesta final con ChatClient (Memory limit: 20, Session: {})...", sessionId);
 
         String aiResponse = chatClient.prompt()
-                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId))
+                .advisors(a -> a.param("chat_memory_conversation_id", sessionId))
                 .system(s -> s.text(SYSTEM_PROMPT).param("context", context))
                 .user(request.getMessage())
                 .call()
@@ -203,7 +203,7 @@ public class ChatService {
 
         // --- PASO 4: RESPUESTA EN STREAMING CON MEMORIA ---
         return chatClient.prompt()
-                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId))
+                .advisors(a -> a.param("chat_memory_conversation_id", sessionId))
                 .system(s -> s.text(SYSTEM_PROMPT).param("context", context))
                 .user(request.getMessage())
                 .stream()
