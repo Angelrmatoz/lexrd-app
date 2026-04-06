@@ -97,28 +97,31 @@ public class ChatService {
         """;
 
     public ChatResponse processChat(ChatRequest request) {
-        log.info("Processing chat request for message: {}", request.getMessage());
+        log.info("Processing chat request for message: {} (Session: {})", request.getMessage(), request.getSessionId());
+
+        String sessionId = (request.getSessionId() != null && !request.getSessionId().isEmpty())
+                           ? request.getSessionId() : "default-session";
 
         // --- PASO 1: IA ENRUTA LA CONSULTA AL ARCHIVO CORRECTO ---
         PromptTemplate routerTemplate = new PromptTemplate(ROUTER_PROMPT);
         var routerMessage = routerTemplate.createMessage(Map.of("user_message", request.getMessage()));
         String targetFile = chatModel.call(new Prompt(List.of(routerMessage)))
                 .getResult().getOutput().getText().trim();
-        
+
         // --- PASO 2: REESCRIBIR LA CONSULTA ---
         PromptTemplate rewriteTemplate = new PromptTemplate(REWRITE_PROMPT);
         var rewriteMessage = rewriteTemplate.createMessage(Map.of("user_message", request.getMessage()));
         String optimizedQuery = chatModel.call(new Prompt(List.of(rewriteMessage)))
                 .getResult().getOutput().getText().trim();
-        
+
         log.info("Análisis de IA -> Archivo: {}, Consulta: {}", targetFile, optimizedQuery);
 
         // --- PASO 3: BÚSQUEDA VECTORIAL ---
         SearchRequest searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
-                .topK(15) 
+                .topK(15)
                 .build();
-                
+
         if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
             log.info("Filtrando búsqueda vectorial por archivo sugerido: {}", targetFile);
             searchRequest = SearchRequest.builder()
@@ -140,9 +143,10 @@ public class ChatService {
                 .collect(Collectors.toList());
 
         // --- PASO 4: RESPUESTA FINAL CON MEMORIA ---
-        log.info("Generando respuesta final con ChatClient (Memory limit: 20)...");
+        log.info("Generando respuesta final con ChatClient (Memory limit: 20, Session: {})...", sessionId);
 
         String aiResponse = chatClient.prompt()
+                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId))
                 .system(s -> s.text(SYSTEM_PROMPT).param("context", context))
                 .user(request.getMessage())
                 .call()
@@ -155,7 +159,10 @@ public class ChatService {
     }
 
     public Flux<ChatResponse> streamChat(ChatRequest request) {
-        log.info("Streaming chat request for message: {}", request.getMessage());
+        log.info("Streaming chat request for message: {} (Session: {})", request.getMessage(), request.getSessionId());
+
+        String sessionId = (request.getSessionId() != null && !request.getSessionId().isEmpty())
+                           ? request.getSessionId() : "default-session";
 
         // --- PASO 1: IA ENRUTA LA CONSULTA ---
         PromptTemplate routerTemplate = new PromptTemplate(ROUTER_PROMPT);
@@ -174,7 +181,7 @@ public class ChatService {
                 .query(optimizedQuery)
                 .topK(15)
                 .build();
-                
+
         if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
             searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
@@ -196,6 +203,7 @@ public class ChatService {
 
         // --- PASO 4: RESPUESTA EN STREAMING CON MEMORIA ---
         return chatClient.prompt()
+                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId))
                 .system(s -> s.text(SYSTEM_PROMPT).param("context", context))
                 .user(request.getMessage())
                 .stream()

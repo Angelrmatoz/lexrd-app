@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
-import { ChatInput } from "../components/ChatInput";
-import { AppSidebar } from "../components/AppSidebar";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { ChatInput } from "@/components/ChatInput";
+import { AppSidebar } from "@/components/AppSidebar";
 import { Message } from "@/types/chat";
 import { useChatStore } from "@/store/useChatStore";
 

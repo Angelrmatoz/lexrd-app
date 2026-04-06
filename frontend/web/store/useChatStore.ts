@@ -4,18 +4,27 @@ import { Message, ChatResponse } from "@/types/chat";
 interface ChatState {
   messages: Message[];
   isLoading: boolean;
+  sessionId: string;
   sendMessage: (input: string) => Promise<void>;
   clearMessages: () => void;
 }
 
+const generateId = () => Math.random().toString(36).substring(2, 15);
+
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
+  sessionId: generateId(),
 
-  clearMessages: () => set({ messages: [] }),
+  clearMessages: () => set({ 
+    messages: [], 
+    sessionId: generateId() // Al generar un nuevo ID, el backend olvida el contexto anterior
+  }),
 
   sendMessage: async (input: string) => {
     if (!input.trim() || get().isLoading) return;
+
+    const { sessionId } = get();
 
     const getCurrentTime = () =>
       new Date().toLocaleTimeString([], {
@@ -41,7 +50,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          sessionId: sessionId
+        }),
       });
 
       if (!response.ok) throw new Error("Error en la respuesta del servidor");

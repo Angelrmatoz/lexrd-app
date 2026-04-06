@@ -12,6 +12,7 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 import { MessageSquare, Library, Plus } from "lucide-react";
+import Link from "next/link";
 
 interface AppSidebarProps {
   onNewChat: () => void;
@@ -51,19 +52,19 @@ export function AppSidebar({ onNewChat }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive className="rounded-lg py-5 px-4 data-active:bg-surface-container-highest data-active:text-on-surface">
-                  <a href="#" className="flex items-center gap-3">
+                <SidebarMenuButton asChild className="rounded-lg py-5 px-4 data-active:bg-surface-container-highest data-active:text-on-surface">
+                  <Link href="/" className="flex items-center gap-3">
                     <MessageSquare className="size-5" />
                     <span className="font-medium">Chat</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="rounded-lg py-5 px-4 hover:bg-surface-container-high transition-colors">
-                  <a href="#" className="flex items-center gap-3">
+                  <Link href="/library" className="flex items-center gap-3">
                     <Library className="size-5" />
                     <span className="font-medium text-on-surface-variant">Library</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
