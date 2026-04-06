@@ -17,7 +17,7 @@ export function ChatInput({
   isLoading,
 }: ChatInputProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pt-12 pb-8 px-6 z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pt-12 pb-14 px-6 z-40">
       <div className="max-w-3xl mx-auto">
         <div className="relative flex items-end">
           <div className="w-full flex items-end bg-surface-container-lowest border border-outline-variant/10 rounded-2xl pl-6 pr-2 py-2 shadow-2xl focus-within:bg-surface-container-highest transition-all duration-300">
@@ -54,10 +54,6 @@ export function ChatInput({
             </div>
           </div>
         </div>
-        <p className="text-[9px] text-center mt-4 text-on-surface-variant/40 uppercase tracking-[0.2em] font-medium">
-          LexRD puede cometer errores. Verifique siempre con un profesional
-          legal colegiado.
-        </p>
       </div>
     </div>
   );
