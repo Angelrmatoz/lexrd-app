@@ -62,3 +62,5 @@ pnpm dev:native
 - **RAG (Retrieval-Augmented Generation)**: Consultas inteligentes sobre el Código Civil, Código Penal, Ley 63-17 y más.
 - **Query Rewriting**: Optimización de preguntas informales en términos legales para búsquedas precisas.
 - **Seguridad**: Configuración personalizada para facilitar pruebas de integración (CSRF desactivado en entorno de desarrollo).
+- **Branding Localizado**: Interfaz e iconografía adaptadas a los colores patrios de República Dominicana.
+- **Spring AI 2.0.0-M3**: Backend actualizado para soportar la última versión de Spring AI con manejo de memoria de conversación estable.

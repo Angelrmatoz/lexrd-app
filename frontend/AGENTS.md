@@ -17,5 +17,6 @@ Esta carpeta gestiona todas las interfaces de usuario de LexRD.
 -   **Temas**: Se prefiere el uso de CSS nativo/StyleSheet para mantener la consistencia. Evitar librerías externas de utilidades CSS a menos que sea necesario.
 
 ## Notas para IA
+-   **Branding**: El SVG usa los colores de la bandera dominicana. Asegurar que las referencias al icono usen la ruta `/icon.svg` y no `/public/icon.svg`. En `layout.tsx`, el icono debe definirse con `type: "image/svg+xml"`.
 -   Al modificar la lógica de chat, asegurar que el manejo del `ChatResponse` incluya la visualización de las `sources` (fuentes legales).
 -   Utilizar `TypeScript` estricto en todos los nuevos componentes.

@@ -20,5 +20,6 @@ El backend implementa un patrón RAG (Retrieval-Augmented Generation) avanzado:
 -   `model/`: DTOs de petición y respuesta.
 
 ## Notas para IA
+-   **Spring AI 2.0.0-M3**: Debido a refactorizaciones en la API de Spring AI (como la clase `MessageChatMemoryAdvisor`), se recomienda usar valores literales para ciertas claves (ej. `"chat_memory_conversation_id"`) en lugar de depender de constantes que pueden cambiar de ubicación.
 -   Cualquier cambio en la lógica de búsqueda debe probarse verificando que el `similarityThreshold` en `ChatService` sea el óptimo para los documentos actuales.
 -   Si se añaden nuevos PDFs al `knowledge-base`, el sistema los procesará en el siguiente inicio si el `app.seeder.enabled` está en `true`.

@@ -13,8 +13,8 @@ El proyecto es un **Turborepo** monorepo que integra un ecosistema de TypeScript
 3.  **Packages (`packages/`)**: Componentes y configuraciones compartidas.
 
 ## Estado Actual y Cambios Recientes
--   **Branding**: Actualizado el icono de la aplicación (`icon.svg`) y configurado en la metadata de Next.js.
--   **IA Core**: Implementado **Query Rewriting** en `ChatService.java` para mejorar la recuperación de documentos legales.
+-   **Branding**: Icono de la aplicación (`icon.svg`) rediseñado con los colores de la bandera dominicana y configurado correctamente en la metadata de Next.js (sirviéndose desde `/icon.svg`).
+-   **IA Core**: Implementado **Query Rewriting** en `ChatService.java` para mejorar la recuperación de documentos legales. Además, se actualizó la lógica de memoria de chat (`CHAT_MEMORY_CONVERSATION_ID_KEY`) usando cadenas literales para asegurar compatibilidad con **Spring AI 2.0.0-M3**.
 -   **Configuración de Modelos**: Uso de OpenRouter con URL base corregida (`/api`) para evitar duplicación de rutas. Modelos primarios: Nvidia Nemotron 70B y Llama 3.1.
 -   **Seguridad**: Archivo `SecurityConfig.java` configurado para desactivar CSRF en desarrollo, permitiendo pruebas POST directas desde clientes externos (Postman).
 -   **Infraestructura**: Actualizado a Java 25 y Spring Boot 4.0.4.

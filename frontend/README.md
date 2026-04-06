@@ -10,6 +10,7 @@ Esta carpeta contiene las aplicaciones de interfaz de usuario de la plataforma L
 - **UI Compartida**: Ambas aplicaciones consumen componentes de la librería local `@repo/ui` (ubicada en `packages/ui`).
 - **TypeScript**: Todo el código está estrictamente tipado para minimizar errores y mejorar la experiencia de desarrollo.
 - **Comunicación con Backend**: Se conecta al servicio central de IA (puerto 5000) para procesar las consultas legales.
+- **Branding**: Iconografía personalizada con los colores de la bandera dominicana, servida correctamente desde el directorio `public` para Next.js.
 
 ## Comandos de Ejecución (desde la raíz)
 - **Ejecutar Web**: `pnpm dev:web`

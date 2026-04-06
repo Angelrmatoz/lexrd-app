@@ -7,6 +7,7 @@ El backend de LexRD es el motor de inteligencia artificial y procesamiento de da
 - **Base de Datos Vectorial**: Utiliza **pgvector** en PostgreSQL para realizar búsquedas semánticas ultra rápidas entre miles de fragmentos de leyes.
 - **Query Rewriting**: Optimiza las preguntas informales de los usuarios convirtiéndolas en términos legales técnicos antes de realizar la búsqueda.
 - **Ingesta Automática**: Al iniciar, el sistema procesa los archivos PDF ubicados en `src/main/resources/knowledge-base` y los sincroniza con la base de datos vectorial.
+- **Memoria de Conversación**: Utiliza Spring AI 2.0.0-M3 con configuración resiliente (`chat_memory_conversation_id`) para el historial de chat con el modelo.
 
 ## Requisitos del Entorno
 - **Java 25** (JDK).
