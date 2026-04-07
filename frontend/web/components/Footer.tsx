@@ -12,7 +12,7 @@ export function Footer() {
           Legal Disclaimer
         </a>
       </div>
-      <span>© 2024 LexRD. Sovereign Intelligence.</span>
+      <span>© {new Date().getFullYear()} LexRD. IA Jurídica Dominicana.</span>
       <p className="text-[9px] text-center mt-1 text-on-surface-variant/40 uppercase tracking-[0.2em] font-medium">
         LexRD puede cometer errores. Verifique siempre con un profesional
         legal.

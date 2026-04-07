@@ -8,7 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "LexRD",
+  title: "LexRD | IA Jurídica Dominicana",
   description: "Expert Dominican legal analysis, regulatory intelligence, and jurisprudence.",
   icons: {
     icon: [

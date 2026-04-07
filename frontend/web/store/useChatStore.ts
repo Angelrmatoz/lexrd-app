@@ -6,9 +6,12 @@ interface ChatState {
   messages: Message[];
   isLoading: boolean;
   sessionId: string;
+  limitReached: boolean;
   sendMessage: (input: string) => Promise<void>;
   clearMessages: () => void;
 }
+
+const MAX_MESSAGES = 20; // 10 del usuario + 10 de la IA
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
@@ -16,14 +19,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   sessionId: generateId(),
+  limitReached: false,
 
-  clearMessages: () => set({ 
-    messages: [], 
-    sessionId: generateId() // Al generar un nuevo ID, el backend olvida el contexto anterior
+  clearMessages: () => set({
+    messages: [],
+    sessionId: generateId(),
+    limitReached: false
   }),
 
   sendMessage: async (input: string) => {
-    if (!input.trim() || get().isLoading) return;
+    if (!input.trim() || get().isLoading || get().limitReached) return;
 
     const { sessionId } = get();
 
@@ -78,6 +83,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set((state) => ({
         messages: [...state.messages, assistantMessage],
       }));
+
+      // Verificar si se alcanzó el límite de mensajes
+      if (get().messages.length >= MAX_MESSAGES) {
+        set({ limitReached: true });
+      }
     } catch (error) {
       console.error("Error:", error);
       const errorMessage: Message = {

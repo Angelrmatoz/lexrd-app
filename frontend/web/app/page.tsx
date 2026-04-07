@@ -5,12 +5,15 @@ import {NavBar} from "@/components/NavBar";
 import {Footer} from "@/components/Footer";
 import {ChatInput} from "@/components/ChatInput";
 import {AppSidebar} from "@/components/AppSidebar";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {Message} from "@/types/chat";
 import {useChatStore} from "@/store/useChatStore";
+import {AlertCircle, Timer} from "lucide-react";
 
 export default function Page() {
-    const {messages, isLoading, sendMessage, clearMessages} = useChatStore();
+    const {messages, isLoading, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
+    const [countdown, setCountdown] = useState<number | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -20,6 +23,23 @@ export default function Page() {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    // Countdown cuando se alcanza el límite
+    useEffect(() => {
+        if (limitReached && countdown === null) {
+            setCountdown(10);
+        }
+
+        if (countdown !== null && countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+
+        if (countdown === 0) {
+            clearMessages();
+            setCountdown(null);
+        }
+    }, [limitReached, countdown, clearMessages]);
 
     const handleSend = async () => {
         const message = input;
@@ -47,11 +67,11 @@ export default function Page() {
                                 </div>
                                 <div className="space-y-2">
                                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
-                                        The Digital Jurist
+                                        Tu Asistente Legal Digital
                                     </h1>
                                     <p className="text-on-surface-variant text-lg max-w-md mx-auto">
-                                        Expert Dominican legal analysis, regulatory intelligence, and
-                                        jurisprudence at your fingertips.
+                                        Análisis legal dominicano experto, inteligencia regulatoria y
+                                        jurisprudencia al alcance de tu mano.
                                     </p>
                                 </div>
                             </div>
@@ -136,6 +156,20 @@ export default function Page() {
                             </div>
                         )}
                     </div>
+
+                    {/* Alerta de límite de mensajes */}
+                    {limitReached && countdown !== null && (
+                        <div className="w-full max-w-3xl mx-auto px-6 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Límite de conversación alcanzado</AlertTitle>
+                                <AlertDescription className="flex items-center gap-1.5">
+                                    <Timer className="h-3.5 w-3.5" />
+                                    Se ha excedido el límite de 10 mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
+                                </AlertDescription>
+                            </Alert>
+                        </div>
+                    )}
                 </main>
 
                 <ChatInput
@@ -143,6 +177,7 @@ export default function Page() {
                     setInput={setInput}
                     onSend={handleSend}
                     isLoading={isLoading}
+                    isDisabled={limitReached}
                 />
             </div>
 
