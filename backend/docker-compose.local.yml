@@ -31,11 +31,13 @@ services:
 
   # ─────────────────────────────────────────────────
   # Backend Spring Boot (Conectado a PostgreSQL local)
+  # Con HOT RELOAD: monta el código fuente del host
   # ─────────────────────────────────────────────────
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     container_name: lexrd_backend_local
     restart: unless-stopped
     depends_on:
@@ -54,6 +56,13 @@ services:
       FRONTEND_URL: http://localhost:3000
     ports:
       - "4000:4000"
+    volumes:
+      # Montar código fuente para hot reload
+      - ./src:/app/src:cached
+      - ./pom.xml:/app/pom.xml:cached
+      # Excluir target para evitar conflictos
+      - /app/target
+      - /root/.m2
 
 volumes:
   pgdata:
