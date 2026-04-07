@@ -6,6 +6,9 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.retry.TransientAiException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 
@@ -24,35 +27,114 @@ public class FallbackChatModel implements ChatModel {
 
     @Override
     public ChatResponse call(Prompt prompt) {
-        // Try primary dto
+        // Try primary model
         try {
-            log.info("Attempting call with primary dto: {}", primaryModel);
+            log.info("🎯 Intentando modelo primario: {}", primaryModel);
             return callWithModel(prompt, primaryModel);
         } catch (Exception e) {
-            log.warn("Primary dto {} failed: {}. Trying fallbacks...", primaryModel, e.getMessage());
-            
+            log.warn("⚠️ Modelo primario {} falló: {}", primaryModel, e.getMessage());
+
+            // Check if error is recoverable (transient) or not (config/auth)
+            if (!isRecoverableError(e)) {
+                log.error("❌ Error no recuperable (configuración/autenticación). No se intentarán fallbacks.");
+                throw new RuntimeException("Error no recuperable en modelo de IA: " + e.getMessage(), e);
+            }
+
+            log.info("🔄 Error recuperable. Intentando {} modelos fallback...", fallbackModels.size());
+
             // Try fallback models
             for (String fallback : fallbackModels) {
                 try {
-                    log.info("Attempting call with fallback dto: {}", fallback);
+                    log.info("🔄 Intentando fallback: {}", fallback);
                     return callWithModel(prompt, fallback);
                 } catch (Exception ex) {
-                    log.warn("Fallback dto {} failed: {}", fallback, ex.getMessage());
+                    log.warn("⚠️ Fallback {} falló: {}", fallback, ex.getMessage());
+
+                    // If this fallback failed with non-recoverable error, stop trying
+                    if (!isRecoverableError(ex)) {
+                        log.error("❌ Error no recuperable en fallback {}. Deteniendo intentos.", fallback);
+                        throw new RuntimeException("Error no recuperable en modelo fallback: " + ex.getMessage(), ex);
+                    }
                 }
             }
-            
-            log.error("All models failed for prompt");
-            throw new RuntimeException("All AI models failed", e);
+
+            log.error("❌ Todos los modelos fallaron para la consulta");
+            throw new RuntimeException("Todos los modelos de IA fallaron. Último error: " + e.getMessage(), e);
         }
     }
 
+    /**
+     * Determines if an error is transient/recoverable (worth trying another model)
+     * or permanent/non-recoverable (all models will fail with same error).
+     */
+    private boolean isRecoverableError(Exception e) {
+        // HTTP 5xx errors (server errors) - recoverable
+        if (e instanceof HttpServerErrorException httpError) {
+            int statusCode = httpError.getStatusCode().value();
+            boolean recoverable = statusCode == 500 || statusCode == 502 || statusCode == 503 || statusCode == 504;
+            log.debug("HTTP Server Error {}: {}", statusCode, recoverable ? "RECUPERABLE" : "NO RECUPERABLE");
+            return recoverable;
+        }
+
+        // Network timeouts - recoverable
+        if (e instanceof ResourceAccessException) {
+            log.debug("ResourceAccessException (timeout/network): RECUPERABLE");
+            return true;
+        }
+
+        // Spring AI retry transient errors - recoverable
+        if (e instanceof TransientAiException) {
+            log.debug("TransientAiException: RECUPERABLE");
+            return true;
+        }
+
+        // Check message for common transient errors
+        String message = e.getMessage();
+        if (message != null) {
+            boolean isTransient = message.contains("503") ||
+                                  message.contains("UNAVAILABLE") ||
+                                  message.contains("high demand") ||
+                                  message.contains("timeout") ||
+                                  message.contains("rate limit") ||
+                                  message.contains("429");
+            if (isTransient) {
+                log.debug("Mensaje indica error transitorio: RECUPERABLE");
+                return true;
+            }
+
+            // Common non-recoverable errors
+            boolean isPermanent = message.contains("401") ||
+                                  message.contains("Unauthorized") ||
+                                  message.contains("403") ||
+                                  message.contains("Forbidden") ||
+                                  message.contains("invalid_api_key") ||
+                                  message.contains("invalid model");
+            if (isPermanent) {
+                log.debug("Mensaje indica error permanente: NO RECUPERABLE");
+                return false;
+            }
+        }
+
+        // Unknown error - assume recoverable to be safe
+        log.debug("Error desconocido, asumiendo recuperable: {}", e.getClass().getSimpleName());
+        return true;
+    }
+
     private ChatResponse callWithModel(Prompt prompt, String modelName) {
+        log.info("🔄 Iniciando llamada con modelo: {}", modelName);
+        
+        // Crear opciones con el nuevo modelo
         ChatOptions newOptions = OpenAiChatOptions.builder()
                 .model(modelName)
+                .temperature(0.0)
                 .build();
-        
+
+        // Crear un nuevo prompt con las opciones del modelo
         Prompt updatedPrompt = new Prompt(prompt.getInstructions(), newOptions);
-        return baseChatModel.call(updatedPrompt);
+        
+        ChatResponse response = baseChatModel.call(updatedPrompt);
+        log.info("✅ Modelo {} respondió exitosamente", modelName);
+        return response;
     }
 
     @Override

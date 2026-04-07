@@ -4,7 +4,7 @@
 # ──────────────────────────────────────────────────────────────
 
 # ── STAGE 1: Build ───────────────────────────────────────────
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM eclipse-temurin:25-jdk AS builder
 
 WORKDIR /app
 
@@ -21,9 +21,14 @@ COPY src ./src
 RUN ./mvnw package -DskipTests -B
 
 # ── STAGE 2: Runtime ─────────────────────────────────────────
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre AS runtime
 
 WORKDIR /app
+
+# Instalar libstdc++ para ONNX Runtime y libgomp para PyTorch
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libstdc++6 libgomp1 wget unzip && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copiar solo el JAR compilado del stage anterior
 COPY --from=builder /app/target/*.jar app.jar
@@ -31,7 +36,9 @@ COPY --from=builder /app/target/*.jar app.jar
 # Exponer el puerto del servidor
 EXPOSE 4000
 
-# Arrancar la aplicación
+# Habilitar acceso nativo para ONNX Runtime
 ENTRYPOINT ["java", \
   "-Djava.security.egd=file:/dev/./urandom", \
+  "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:prod}", \
+  "--enable-native-access=ALL-UNNAMED", \
   "-jar", "app.jar"]
