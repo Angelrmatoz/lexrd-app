@@ -31,7 +31,7 @@ COPY --from=builder /app/target/*.jar app.jar
 # Exponer el puerto del servidor
 EXPOSE 4000
 
-# Arrancar con perfil de producción
+# Arrancar la aplicación
 ENTRYPOINT ["java", \
   "-Djava.security.egd=file:/dev/./urandom", \
   "-jar", "app.jar"]
