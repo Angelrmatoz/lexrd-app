@@ -119,14 +119,14 @@ public class ChatService {
         // --- PASO 3: BÚSQUEDA VECTORIAL ---
         SearchRequest searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
-                .topK(15)
+                .topK(25)
                 .build();
 
         if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
             log.info("Filtrando búsqueda vectorial por archivo sugerido: {}", targetFile);
             searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
-                .topK(15)
+                .topK(25)
                 .filterExpression("filename == '" + targetFile + "'")
                 .build();
         }
@@ -179,13 +179,13 @@ public class ChatService {
         // --- PASO 3: BÚSQUEDA VECTORIAL ---
         SearchRequest searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
-                .topK(15)
+                .topK(25)
                 .build();
 
         if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
             searchRequest = SearchRequest.builder()
                 .query(optimizedQuery)
-                .topK(15)
+                .topK(25)
                 .filterExpression("filename == '" + targetFile + "'")
                 .build();
         }
