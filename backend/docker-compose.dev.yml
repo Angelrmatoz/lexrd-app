@@ -1,8 +1,9 @@
 # ===================================================================
-# DOCKER COMPOSE - PRODUCCIÓN (AZURE CONTAINER APPS)
+# DOCKER COMPOSE - DESARROLLO (SUPABASE CON BACKEND)
 # ===================================================================
-# Uso: docker compose up -d (para pruebas locales de prod)
-# Para Azure: Este archivo sirve como referencia de configuración
+# Uso: docker compose -f docker-compose.dev.yml up -d
+# Levanta backend conectado a Supabase
+# Seeder: carga PDFs si no existen, muestra logs detallados
 # ===================================================================
 
 services:
@@ -13,22 +14,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lexrd_backend
+    container_name: lexrd_backend_dev
     restart: unless-stopped
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
-      API_KEY_FILTER: ${API_KEY_FILTER:-}
-      FRONTEND_URL: ${FRONTEND_URL}
+      API_KEY_FILTER: ""
+      FRONTEND_URL: http://localhost:3000
     ports:
       - "4000:4000"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:4000/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
