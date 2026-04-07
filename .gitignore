@@ -30,10 +30,13 @@ backend/error.txt
 backend/responseAI.txt
 
 # local env files
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+frontend/.env
 
 # turbo
 .turbo

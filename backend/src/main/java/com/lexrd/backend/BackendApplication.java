@@ -31,6 +31,7 @@ public class BackendApplication {
             System.out.println("🚀 LexRD Backend is up and running!");
             System.out.println("🔌 Server Port: " + serverPort);
             System.out.println("🗄️  Database Connection: " + dbUrl);
+            System.out.println("📖 Swagger UI: http://localhost:" + serverPort + "/swagger-ui.html");
             System.out.println("=========================================================");
         };
     }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Message, ChatResponse } from "@/types/chat";
+import { API } from "@/lib/api-config";
 
 interface ChatState {
   messages: Message[];
@@ -45,12 +46,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
 
     try {
-      const response = await fetch("http://localhost:5000/api/chat", {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Agregar API key si está configurada
+      if (API.apiKey) {
+        headers["x-api-key"] = API.apiKey;
+      }
+
+      const response = await fetch(API.chat.url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
+        headers,
+        body: JSON.stringify({
           message: input,
           sessionId: sessionId
         }),
