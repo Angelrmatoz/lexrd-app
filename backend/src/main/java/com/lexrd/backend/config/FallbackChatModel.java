@@ -9,6 +9,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.retry.TransientAiException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -61,6 +62,61 @@ public class FallbackChatModel implements ChatModel {
             log.error("❌ Todos los modelos fallaron para la consulta");
             throw new RuntimeException("Todos los modelos de IA fallaron. Último error: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Flux<ChatResponse> stream(Prompt prompt) {
+        // Try primary model
+        try {
+            log.info("🎯 [STREAM] Intentando modelo primario: {}", primaryModel);
+            return streamWithModel(prompt, primaryModel);
+        } catch (Exception e) {
+            log.warn("⚠️ [STREAM] Modelo primario {} falló: {}", primaryModel, e.getMessage());
+
+            if (!isRecoverableError(e)) {
+                log.error("❌ [STREAM] Error no recuperable. No se intentarán fallbacks.");
+                return Flux.error(new RuntimeException("Error no recuperable en modelo de IA: " + e.getMessage(), e));
+            }
+
+            log.info("🔄 [STREAM] Error recuperable. Intentando fallbacks...");
+
+            // Try fallback models sequentially
+            Flux<ChatResponse> result = Flux.error(new RuntimeException("No models succeeded"));
+            
+            for (String fallback : fallbackModels) {
+                final Flux<ChatResponse> currentResult = result;
+                result = currentResult.onErrorResume(err -> {
+                    log.info("🔄 [STREAM] Intentando fallback: {}", fallback);
+                    try {
+                        return streamWithModel(prompt, fallback);
+                    } catch (Exception ex) {
+                        log.warn("⚠️ [STREAM] Fallback {} falló: {}", fallback, ex.getMessage());
+                        if (!isRecoverableError(ex)) {
+                            return Flux.error(new RuntimeException("Error no recuperable en fallback: " + ex.getMessage(), ex));
+                        }
+                        return Flux.error(ex);
+                    }
+                });
+            }
+            
+            return result;
+        }
+    }
+
+    private Flux<ChatResponse> streamWithModel(Prompt prompt, String modelName) {
+        log.info("🔄 [STREAM] Iniciando streaming con modelo: {}", modelName);
+        
+        ChatOptions newOptions = OpenAiChatOptions.builder()
+                .model(modelName)
+                .temperature(0.0)
+                .build();
+
+        Prompt updatedPrompt = new Prompt(prompt.getInstructions(), newOptions);
+        
+        return baseChatModel.stream(updatedPrompt)
+                .doOnNext(response -> log.debug("[STREAM] {} recibió chunk", modelName))
+                .doOnComplete(() -> log.info("✅ [STREAM] Modelo {} completó streaming", modelName))
+                .doOnError(e -> log.error("❌ [STREAM] Modelo {} falló: {}", modelName, e.getMessage()));
     }
 
     /**

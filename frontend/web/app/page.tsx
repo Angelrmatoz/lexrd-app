@@ -11,7 +11,7 @@ import {useChatStore} from "@/store/useChatStore";
 import {AlertCircle, Timer} from "lucide-react";
 
 export default function Page() {
-    const {messages, isLoading, sendMessage, clearMessages, limitReached} = useChatStore();
+    const {messages, isLoading, isThinking, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -152,6 +152,33 @@ export default function Page() {
                                         )}
                                     </div>
                                 ))}
+
+                                {/* Indicador "Pensando..." */}
+                                {isThinking && (
+                                    <div className="flex items-start gap-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
+                                            <span
+                                                className="material-symbols-outlined text-[20px] animate-pulse"
+                                                style={{fontVariationSettings: "'FILL' 1"}}
+                                            >
+                                                smart_toy
+                                            </span>
+                                        </div>
+                                        <div className="flex-grow">
+                                            <div className="flex items-center gap-2 py-3">
+                                                <div className="flex gap-1">
+                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "0ms"}}></div>
+                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "150ms"}}></div>
+                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "300ms"}}></div>
+                                                </div>
+                                                <span className="text-sm text-on-surface-variant font-medium">
+                                                    Pensando...
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div ref={messagesEndRef}/>
                             </div>
                         )}
