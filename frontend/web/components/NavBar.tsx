@@ -4,6 +4,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface HeaderProps {
   onNewChat: () => void;
@@ -11,9 +12,34 @@ interface HeaderProps {
 
 export function NavBar({ onNewChat }: HeaderProps) {
   const pathname = usePathname();
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY === 0) {
+        // Solo al tope de la página → mostrar
+        setVisible(true);
+      } else {
+        // Cualquier otro scroll → ocultar
+        setVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
-    <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+    <div
+      className={`fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none transition-transform duration-300 ${
+        visible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       <header className="w-full max-w-5xl bg-surface-container-low/70 backdrop-blur-xl border border-outline-variant/10 rounded-2xl shadow-2xl shadow-black/20 pointer-events-auto">
         <div className="flex justify-between items-center w-full px-6 py-2 h-14">
           <div className="flex items-center gap-4">
