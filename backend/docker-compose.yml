@@ -1,8 +1,9 @@
 # ===================================================================
 # DOCKER COMPOSE - PRODUCCIÓN (AZURE CONTAINER APPS)
 # ===================================================================
-# Uso: docker compose up -d (para pruebas locales de prod)
-# Para Azure: Este archivo sirve como referencia de configuración
+# Uso: Este archivo es la referencia para desplegar en Azure.
+# En Azure Container Apps se configura directamente en el portal/CLI.
+# Para pruebas locales de prod: docker compose up -d
 # ===================================================================
 
 services:
@@ -13,6 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ${CONTAINER_REGISTRY:-lexrd}/backend:${IMAGE_TAG:-latest}
     container_name: lexrd_backend
     restart: unless-stopped
     environment:
@@ -21,7 +23,6 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       API_KEY_FILTER: ${API_KEY_FILTER:-}
       FRONTEND_URL: ${FRONTEND_URL}
     ports:
@@ -31,4 +32,4 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s

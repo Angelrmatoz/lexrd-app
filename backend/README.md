@@ -12,14 +12,31 @@ El backend de LexRD es el motor de inteligencia artificial y procesamiento de da
 ## Requisitos del Entorno
 - **Java 25** (JDK).
 - **Base de Datos**: PostgreSQL con la extensión `pgvector` activada (se recomienda el uso de Supabase).
-- **API Key**: Se requiere una clave de **OpenRouter** configurada en las variables de entorno o en `application.properties`.
+- **API Key**: Se requiere una clave de **Gemini** configurada en las variables de entorno.
 
 ## Cómo Ejecutar
-Desde esta carpeta:
+
+### Desarrollo Local
+
+1. **Levantar PostgreSQL local:**
+   ```sh
+   docker compose -f docker-compose.db.yml up -d
+   ```
+
+2. **Ejecutar el backend:**
+   ```sh
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=database
+   ```
+
+El servidor abrirá en: `http://localhost:4000`
+
+### Producción (Azure Container Apps)
+
+El `docker-compose.yml` está configurado para producción. En Azure Container Apps, la imagen se construye con el `Dockerfile` y se despliega directamente.
+
 ```sh
-./mvnw spring-boot:run
+docker compose up -d
 ```
-El servidor abrirá en: `http://localhost:5000`
 
 ---
 *Para detalles técnicos específicos sobre los servicios y configuraciones de IA, consulta `AGENTS.md` en esta misma carpeta.*
