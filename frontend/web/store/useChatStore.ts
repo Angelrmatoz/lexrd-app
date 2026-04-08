@@ -27,6 +27,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     messages: [],
     sessionId: generateId(),
     limitReached: false,
+    isLoading: false,
     isThinking: false,
   }),
 

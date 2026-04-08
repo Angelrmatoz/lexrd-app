@@ -69,13 +69,13 @@ export function NavBar({ onNewChat }: HeaderProps) {
               </Link>
               <Link
                 className={`transition-all duration-300 px-4 py-1.5 rounded-xl ${
-                  pathname === "/library" 
-                  ? "bg-surface-container-highest text-on-surface shadow-inner" 
+                  pathname === "/documentos-oficiales" || pathname === "/official-documents"
+                  ? "bg-surface-container-highest text-on-surface shadow-inner"
                   : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-high/50"
                 }`}
-                href="/library"
+                href="/documentos-oficiales"
               >
-                Library
+                Documentos Oficiales
               </Link>
             </nav>
             
@@ -85,7 +85,7 @@ export function NavBar({ onNewChat }: HeaderProps) {
                 className="flex items-center gap-2 bg-primary text-on-primary px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-all hover:opacity-90 shadow-lg shadow-primary/10"
               >
                 <Plus className="size-3.5" strokeWidth={3} />
-                <span>New Chat</span>
+                <span>Nuevo Chat</span>
               </button>
             </div>
           </div>

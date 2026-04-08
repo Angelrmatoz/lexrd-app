@@ -5,7 +5,8 @@ import { Footer } from "@/components/Footer";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useChatStore } from "@/store/useChatStore";
 import { useRouter } from "next/navigation";
-import { BookOpen, Scale, FileText, Shield, Landmark, Car } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { LEGAL_CATEGORIES } from "@/constants/categories";
 
 export default function LibraryPage() {
   const { clearMessages } = useChatStore();
@@ -15,53 +16,6 @@ export default function LibraryPage() {
     clearMessages();
     router.push("/");
   };
-
-  const categories = [
-    {
-      title: "Constitución",
-      icon: <Shield className="size-6 text-dominican-red" />,
-      description: "Ley fundamental del Estado dominicano.",
-      documents: ["Constitución de la República Dominicana"],
-    },
-    {
-      title: "Códigos Principales",
-      icon: <Landmark className="size-6 text-dominican-blue" />,
-      description: "Pilares del ordenamiento jurídico civil y penal.",
-      documents: [
-        "Código Civil",
-        "Código Penal",
-        "Código de Comercio",
-        "Código de Trabajo",
-      ],
-    },
-    {
-      title: "Procedimientos",
-      icon: <Scale className="size-6 text-tertiary" />,
-      description: "Normativa sobre la ejecución de las leyes.",
-      documents: [
-        "Código Procesal Penal",
-        "Código de Procedimiento Civil",
-      ],
-    },
-    {
-      title: "Leyes Especializadas",
-      icon: <FileText className="size-6 text-on-surface-variant" />,
-      description: "Regulaciones para sectores específicos.",
-      documents: [
-        "Código Tributario",
-        "Código Monetario y Financiero",
-        "Código para la protección de Niños, Niñas y Adolescentes (NNA)",
-      ],
-    },
-    {
-      title: "Movilidad y Tránsito",
-      icon: <Car className="size-6 text-primary" />,
-      description: "Seguridad vial y transporte terrestre.",
-      documents: [
-        "Ley No. 63-17 de Movilidad, Transporte Terrestre, Tránsito y Seguridad Vial",
-      ],
-    },
-  ];
 
   return (
     <div className="flex min-h-screen text-on-surface bg-surface">
@@ -91,7 +45,7 @@ export default function LibraryPage() {
 
             {/* Documents Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {categories.map((category, idx) => (
+              {LEGAL_CATEGORIES.map((category, idx) => (
                 <div 
                   key={idx}
                   className="group bg-surface-container-lowest border border-outline-variant/5 hover:border-tertiary/30 p-8 rounded-2xl transition-all duration-300 flex flex-col space-y-4"

@@ -2,6 +2,15 @@ module.exports = {
   reactStrictMode: true,
   output: "standalone",
   transpilePackages: ["@repo/ui"],
+  async redirects() {
+    return [
+      {
+        source: "/documentos-oficiales",
+        destination: "/official-documents",
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config, { dev }) => {
     // Configuración para que el Hot Reload funcione en Docker (Windows/Mac)
     if (dev) {

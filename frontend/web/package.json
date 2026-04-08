@@ -6,7 +6,10 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
@@ -30,6 +33,9 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/minimatch": "^6.0.0",
     "@types/node": "^20.10.6",
     "@types/react": "~19.2.10",
@@ -37,6 +43,7 @@
     "babel-plugin-react-native-web": "^0.19.10",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.0.4",
+    "jest": "^30.3.0",
     "typescript": "5.9.2"
   }
 }
