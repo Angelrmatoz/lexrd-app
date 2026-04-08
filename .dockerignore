@@ -1,9 +1,9 @@
-node_modules
-.git
-.gitignore
-*.md
-.env.local
-.env.*.local
+**/node_modules
+**/.git
+**/.gitignore
+**/*.md
+**/.env.local
+**/.env.*.local
 .dockerignore
 Dockerfile
 docker-compose*.yml
@@ -12,4 +12,4 @@ frontend/native
 .vscode
 .ai
 backend/
-.turbo
+**/.turbo

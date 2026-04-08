@@ -26,10 +26,9 @@ RUN apk add --no-cache libc6-compat pnpm
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/ui ./packages/ui
-COPY --from=deps /app/packages/typescript-config ./packages/typescript-config
-COPY packages/ui/ ./packages/ui/
-COPY packages/typescript-config/ ./packages/typescript-config/
+COPY --from=deps /app/frontend/web/node_modules ./frontend/web/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
+COPY packages/ ./packages/
 COPY package.json pnpm-workspace.yaml turbo.json ./
 
 WORKDIR /app/packages/ui
@@ -43,6 +42,8 @@ RUN apk add --no-cache libc6-compat pnpm
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/frontend/web/node_modules ./frontend/web/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY --from=packages /app/packages/ui ./packages/ui
 COPY --from=packages /app/packages/typescript-config ./packages/typescript-config
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -59,16 +60,20 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Copiar el output standalone (incluye node_modules necesarios y el código)
 COPY --from=builder /app/frontend/web/.next/standalone ./
-COPY --from=builder /app/frontend/web/.next/static ./.next/static
-COPY --from=builder /app/frontend/web/public ./public
+# Los archivos estáticos y públicos NO se incluyen en standalone por defecto,
+# deben copiarse manualmente a la ruta donde Next.js los espera dentro de la estructura del monorepo
+COPY --from=builder /app/frontend/web/.next/static ./frontend/web/.next/static
+COPY --from=builder /app/frontend/web/public ./frontend/web/public
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# En un monorepo, el server.js se genera dentro de la carpeta del paquete correspondiente
+CMD ["node", "frontend/web/server.js"]
 
 # ── STAGE 5: Desarrollo (hot reload con Webpack) ───────────
 FROM node:20-alpine AS dev

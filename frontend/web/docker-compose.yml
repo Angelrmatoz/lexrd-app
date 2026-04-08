@@ -13,6 +13,7 @@ services:
     build:
       context: ../..
       dockerfile: frontend/web/Dockerfile
+      target: runner
     image: ${CONTAINER_REGISTRY:-lexrd}/web:${IMAGE_TAG:-latest}
     container_name: lexrd_web
     restart: unless-stopped
