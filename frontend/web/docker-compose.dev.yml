@@ -1,0 +1,47 @@
+# ===================================================================
+# DOCKER COMPOSE - DESARROLLO (HOT RELOAD CON WEBPACK)
+# ===================================================================
+# Uso: docker compose -f docker-compose.dev.yml up -d
+# Hot reload con Webpack + polling para sincronización de archivos
+# ===================================================================
+
+services:
+  # ─────────────────────────────────────────────────
+  # Frontend Web (Next.js 16 + Webpack - Hot Reload)
+  # ─────────────────────────────────────────────────
+  web:
+    build:
+      context: ../..
+      dockerfile: frontend/web/Dockerfile
+      target: dev
+    container_name: lexrd_web_dev
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000}
+      NEXT_PUBLIC_API_KEY_FILTER: ${NEXT_PUBLIC_API_KEY_FILTER:-}
+      NODE_ENV: development
+      CI: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      PNPM_HOME: "/pnpm"
+    ports:
+      - "3000:3000"
+    volumes:
+      # Montar todo el monorepo en la raíz de app
+      - ../../:/app:cached
+      # Excluir la build de next y turbo (no node_modules)
+      - /app/frontend/web/.next
+      - /app/frontend/web/.turbo
+      - pnpm_store:/pnpm-store
+      # Aislar node_modules en Linux para evitar EACCES y bloqueos de symlinks en Windows
+      - /app/node_modules
+      - /app/frontend/web/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/typescript-config/node_modules
+      # Caché de pnpm global para instalaciones rápidas
+      - pnpm_cache:/pnpm
+    command: sh -c "pnpm install --frozen-lockfile && pnpm dev --filter=web"
+
+volumes:
+  pnpm_cache:
+  pnpm_store:
