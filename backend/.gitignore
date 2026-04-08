@@ -42,4 +42,8 @@ responseAI.txt
 ### LexRD specific ###
 vectorstore.json
 
+# Qwen specific
 .qwen
+
+# JetBrains IDEs
+.idea
