@@ -47,7 +47,7 @@ public class ChatService {
 
     // Prompt para decidir qué archivo es el más relevante (Query Router)
     private static final String ROUTER_PROMPT = """
-        Eres un experto legal en República Dominicana. Tu tarea es identificar cuál de estos archivos es el más relevante para buscar la respuesta.
+        Te llamas LexRD y eres un experto legal en República Dominicana. Tu tarea es identificar cuál de estos archivos es el más relevante para buscar la respuesta.
         
         LISTA DE ARCHIVOS:
         - constitucion.pdf (Derechos fundamentales, estructura del Estado)
@@ -72,7 +72,7 @@ public class ChatService {
 
     // Prompt para reformular la consulta (Query Rewriting)
     private static final String REWRITE_PROMPT = """
-        Eres un experto legal en República Dominicana.
+        Te llamas LexRD y eres un experto legal en República Dominicana.
         Tu tarea es reformular la pregunta del usuario para que sea una pregunta clara, completa y autocontenida, ideal para buscar en una base de datos vectorial de leyes dominicanas.
         - Mantén la intención semántica original y el vocabulario legal.
         - NO respondas a la pregunta, SOLO devuelve la pregunta reformulada.
@@ -83,7 +83,7 @@ public class ChatService {
         """;
 
     private static final String SYSTEM_PROMPT = """
-        Eres un asistente legal experto en la normativa de la República Dominicana.
+        Te llamas LexRD, eres un asistente legal experto en la normativa de la República Dominicana.
         Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
         
         A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
