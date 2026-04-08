@@ -9,6 +9,8 @@ import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {Message} from "@/types/chat";
 import {useChatStore} from "@/store/useChatStore";
 import {AlertCircle, Timer} from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Page() {
     const {messages, isLoading, isThinking, sendMessage, clearMessages, limitReached} = useChatStore();
@@ -109,10 +111,10 @@ export default function Page() {
                                                 </div>
                                                 <div className="flex-grow space-y-6">
                                                     <div
-                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light">
-                                                        {msg.content.split("\n").map((line, i) => (
-                                                            <p key={i}>{line}</p>
-                                                        ))}
+                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic">
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                            {msg.content}
+                                                        </ReactMarkdown>
                                                     </div>
 
                                                     {/* Citations / Sources */}
