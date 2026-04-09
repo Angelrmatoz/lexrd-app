@@ -45,3 +45,4 @@ frontend/.env
 .vscode
 .ai
 target/
+.vercel
