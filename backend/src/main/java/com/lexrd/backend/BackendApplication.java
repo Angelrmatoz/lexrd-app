@@ -25,12 +25,19 @@ public class BackendApplication {
     @Bean
     public CommandLineRunner printDatabaseConfig(
             @Value("${spring.datasource.url}") String dbUrl,
-            @Value("${server.port:8080}") String serverPort) {
+            @Value("${server.port:8080}") String serverPort,
+            @Value("${spring.profiles.active:dev}") String activeProfile) {
         return args -> {
+            String displayUrl = dbUrl;
+            if ("prod".equalsIgnoreCase(activeProfile) && displayUrl.contains("?")) {
+                // En producción oculta los parámetros sensibles (usuario, contraseña, etc.)
+                displayUrl = displayUrl.substring(0, displayUrl.indexOf("?")) + "?***";
+            }
+
             System.out.println("=========================================================");
             System.out.println("🚀 LexRD Backend is up and running!");
             System.out.println("🔌 Server Port: " + serverPort);
-            System.out.println("🗄️  Database Connection: " + dbUrl);
+            System.out.println("🗄️  Database Connection: " + displayUrl);
             System.out.println("📖 Swagger UI: http://localhost:" + serverPort + "/swagger-ui.html");
             System.out.println("=========================================================");
         };
