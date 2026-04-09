@@ -46,7 +46,7 @@ pnpm install
 cd backend
 ./mvnw spring-boot:run
 ```
-*El backend corre por defecto en el puerto **5000**.*
+*El backend corre por defecto en el puerto **4000**.*
 
 **Frontend Web:**
 ```sh
@@ -57,6 +57,27 @@ pnpm dev:web
 ```sh
 pnpm dev:native
 ```
+
+## Despliegue (Azure Container Apps + GHCR)
+
+Este proyecto está configurado para desplegarse utilizando **GitHub Container Registry (GHCR)** como puente para **Azure Container Apps**.
+
+### Pipeline de CI/CD
+El archivo `.github/workflows/ci.yml` automatiza:
+1. Pruebas unitarias e integración del backend.
+2. Build de la imagen Docker utilizando `backend/Dockerfile`.
+3. Push de la imagen a **GHCR** (`ghcr.io`).
+
+### Configuración en Azure Container Apps
+Debes configurar tu instancia de Azure Container Apps para que tenga acceso a GHCR:
+1. Habilita la autenticación de registros externos en Azure.
+2. Usa `ghcr.io` como servidor de registro.
+3. Utiliza la imagen `ghcr.io/<TU_USUARIO_GITHUB>/lexrd-backend:latest`.
+
+### Secretos en GitHub
+Asegúrate de tener configurado:
+- `GEMINI_API_KEY`: Tu clave de API de Google Gemini.
+- (El token `GITHUB_TOKEN` para GHCR se gestiona automáticamente por el workflow).
 
 ## Características Principales
 - **RAG (Retrieval-Augmented Generation)**: Consultas inteligentes sobre el Código Civil, Penal, Laboral, Constitucional y leyes especiales de RD.

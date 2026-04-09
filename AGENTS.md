@@ -18,6 +18,10 @@ El proyecto es un **Turborepo** monorepo que integra un ecosistema de TypeScript
     -   Patrones: Query Routing, Query Rewriting, RAG con `VectorStore`.
 -   **Branding**: Iconografía (SVG) con colores patrios de la República Dominicana, gestionada desde `public/icon.svg`.
 
+## Infraestructura y Despliegue
+-   **CI/CD**: Configurado en `.github/workflows/ci.yml`. Automatiza el build y push de la imagen del backend a **GitHub Container Registry (GHCR)** para que **Azure Container Apps** pueda "jalarla".
+-   **Seguridad**: El workflow utiliza `GITHUB_TOKEN` para la autenticación automática en GHCR.
+
 ## Directrices para Agentes
 -   **Monorepo**: Considerar el impacto de cambios en `packages/ui` tanto en Web como en Native.
 -   **IA/RAG**: Los modelos se configuran vía `application.properties` (y perfiles). Al añadir modelos, actualizar los fallbacks en `FallbackChatModel.java`.
