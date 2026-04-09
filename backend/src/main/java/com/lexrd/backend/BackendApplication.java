@@ -29,9 +29,9 @@ public class BackendApplication {
             @Value("${spring.profiles.active:dev}") String activeProfile) {
         return args -> {
             String displayUrl = dbUrl;
-            if ("prod".equalsIgnoreCase(activeProfile) && displayUrl.contains("?")) {
-                // En producción oculta los parámetros sensibles (usuario, contraseña, etc.)
-                displayUrl = displayUrl.substring(0, displayUrl.indexOf("?")) + "?***";
+            if ("prod".equalsIgnoreCase(activeProfile)) {
+                // En producción oculta específicamente la contraseña en la URL
+                displayUrl = displayUrl.replaceAll("(?i)(password|passwd|pwd)=[^&]*", "$1=***");
             }
 
             System.out.println("=========================================================");
