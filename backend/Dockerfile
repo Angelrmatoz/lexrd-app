@@ -13,6 +13,9 @@ COPY pom.xml .
 COPY .mvn .mvn
 COPY mvnw mvnw
 
+# Asegurar permisos de ejecución para el wrapper
+RUN chmod +x mvnw
+
 # Descargar dependencias en capa separada (cache inteligente)
 RUN ./mvnw dependency:go-offline -B
 
