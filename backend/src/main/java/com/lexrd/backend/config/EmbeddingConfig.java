@@ -3,6 +3,7 @@ package com.lexrd.backend.config;
 import org.springframework.ai.transformers.TransformersEmbeddingModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
@@ -15,6 +16,7 @@ public class EmbeddingConfig {
 
     @Bean
     @Primary
+    @Lazy
     public TransformersEmbeddingModel transformersEmbeddingModel() throws MalformedURLException {
         TransformersEmbeddingModel embeddingModel = new TransformersEmbeddingModel();
 
