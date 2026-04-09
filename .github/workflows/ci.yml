@@ -29,6 +29,9 @@ jobs:
 
       - name: Run tests
         run: pnpm --filter web test
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+          NEXT_PUBLIC_API_KEY_FILTER: test-api-key
 
   # ─── Backend Tests ───
   backend-tests:
