@@ -46,9 +46,8 @@ COPY --from=builder /app/target/*.jar app.jar
 # Exponer el puerto del servidor
 EXPOSE 4000
 
-# Habilitar acceso nativo para ONNX Runtime y optimizar uso de memoria (Heap)
+# Habilitar acceso nativo para ONNX Runtime (Java decide la memoria automáticamente)
 ENTRYPOINT ["java", \
-  "-XX:MaxRAMPercentage=75.0", \
   "-Djava.security.egd=file:/dev/./urandom", \
   "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:prod}", \
   "--enable-native-access=ALL-UNNAMED", \
