@@ -1,0 +1,35 @@
+# ===================================================================
+# DOCKER COMPOSE - BASE DE DATOS LOCAL (PostgreSQL + pgvector)
+# ===================================================================
+# Uso: docker compose -f docker-compose.db.yml up -d
+# Este compose solo levanta PostgreSQL para desarrollo local.
+# El backend se ejecuta directamente con: ./mvnw spring-boot:run
+# ===================================================================
+
+services:
+  # ─────────────────────────────────────────────────
+  # PostgreSQL 17 + pgvector (extensión vectorial)
+  # Imagen oficial: https://hub.docker.com/r/pgvector/pgvector
+  # ─────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: lexrd_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lexrd_backend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lexrd_backend"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    name: lexrd_pgdata

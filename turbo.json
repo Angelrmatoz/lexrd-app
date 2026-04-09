@@ -1,6 +1,6 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
+  "$schema": "https://v2-9-4.turborepo.dev/schema.json",
+  "ui": "stream",
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
@@ -8,12 +8,12 @@
       "dependsOn": ["^build"]
     },
     "dev": {
-      "cache": false,
+      "cache": true,
       "persistent": true
     },
     "lint": {},
     "clean": {
-      "cache": false
+      "cache": true
     }
   }
 }

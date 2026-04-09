@@ -1,0 +1,30 @@
+# ===================================================================
+# DOCKER COMPOSE - PRODUCCIÓN (AZURE CONTAINER APPS)
+# ===================================================================
+# Uso: docker compose up -d
+# Para Azure: Este archivo sirve como referencia de configuración
+# ===================================================================
+
+services:
+  # ─────────────────────────────────────────────────
+  # Frontend Web (Next.js 16 - Standalone)
+  # ─────────────────────────────────────────────────
+  web:
+    build:
+      context: ../..
+      dockerfile: frontend/web/Dockerfile
+      target: runner
+    image: ${CONTAINER_REGISTRY:-lexrd}/web:${IMAGE_TAG:-latest}
+    container_name: lexrd_web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+      NEXT_PUBLIC_API_KEY_FILTER: ${NEXT_PUBLIC_API_KEY_FILTER}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:3000 || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

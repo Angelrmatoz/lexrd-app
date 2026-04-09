@@ -1,25 +1,22 @@
 # Frontend - Agents Documentation
 
-This directory contains the application layers for the Lexrd project.
+Esta carpeta gestiona todas las interfaces de usuario de LexRD.
 
-## Project Structure
-- `web/`: Next.js application using `react-native-web` for cross-platform compatibility.
-- `native/`: Expo application for iOS and Android.
+## Aplicaciones
+-   **`web/`**: Next.js 15+ con `react-native-web`. Usa el App Router.
+-   **`native/`**: Expo SDK 50+ / React Native.
 
-## Shared Resources
-- Both applications share UI components from `../../packages/ui` (`@repo/ui`).
-- Shared TypeScript configurations are in `../../packages/typescript-config`.
+## Integración con Backend
+-   **API Base**: El frontend se comunica con el backend de Spring Boot (puerto 5000 por defecto).
+-   **Endpoints Clave**:
+    -   `POST /api/chat`: Envío de consultas legales. Cuerpo: `{"message": "..."}`.
+    -   `GET /api/health`: Verificación de estado del servidor.
 
-## Tech Stack
-- **Frameworks**: Next.js (Web), Expo/React Native (Native).
-- **Styling**: Vanilla CSS / CSS Modules (Web), StyleSheet (Native).
-- **Navigation**: Next.js App Router (Web), Expo Router (Native).
+## Desarrollo y Estilo
+-   **UI Compartida**: Los componentes se importan de `@repo/ui`. Si un componente necesita estilos específicos para web o móvil, se usan extensiones `.web.tsx` o condicionales de `Platform`.
+-   **Temas**: Se prefiere el uso de CSS nativo/StyleSheet para mantener la consistencia. Evitar librerías externas de utilidades CSS a menos que sea necesario.
 
-## Development Workflow
-- Run individual apps from the root using `pnpm dev:web` or `pnpm dev:native`.
-- Always verify changes in both environments if modifying shared components in `@repo/ui`.
-
-## Conventions
-- **Components**: PascalCase (e.g., `Header.tsx`).
-- **Hooks**: camelCase with `use` prefix (e.g., `useAuth.ts`).
-- **File Naming**: Prefer kebab-case for non-component files.
+## Notas para IA
+-   **Branding**: El SVG usa los colores de la bandera dominicana. Asegurar que las referencias al icono usen la ruta `/icon.svg` y no `/public/icon.svg`. En `layout.tsx`, el icono debe definirse con `type: "image/svg+xml"`.
+-   Al modificar la lógica de chat, asegurar que el manejo del `ChatResponse` incluya la visualización de las `sources` (fuentes legales).
+-   Utilizar `TypeScript` estricto en todos los nuevos componentes.

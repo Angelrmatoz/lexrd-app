@@ -1,57 +1,26 @@
-# Lexrd App - Agents Documentation
+# LexRD - Agents Documentation (Root)
 
-This document tracks the current state, architecture, and recent modifications of the workspace for AI agents.
+Este documento sirve como contexto principal para cualquier IA que trabaje en este workspace. Define la arquitectura, el estado actual y las reglas de diseño.
 
-## Project Architecture
-This is a **Turborepo** monorepo using **pnpm** as the package manager.
+## Arquitectura de Referencia
+El proyecto es un **Turborepo** monorepo que integra un ecosistema de TypeScript (Next.js/Expo) con un potente motor de IA en Java (Spring Boot).
 
-### Key Directories
-- `frontend/`: Contains the application layers.
-  - `web/`: Next.js application (using `react-native-web`).
-  - `native/`: React Native application (Expo).
-- `backend/`: Java Spring Boot backend service.
-- `packages/`: Shared workspace packages.
-  - `ui/`: Shared React Native component library (`@repo/ui`).
-  - `typescript-config/`: Shared TypeScript configurations (`@repo/typescript-config`).
+### Componentes Clave
+1.  **Frontend (`frontend/`)**: Aplicación dual (Web/Mobile) compartiendo lógica de UI.
+2.  **Backend (`backend/`)**: Servidor de IA basado en Spring AI.
+    -   **IA RAG**: Integración con OpenRouter y base de datos vectorial pgvector.
+    -   **Base de Datos**: PostgreSQL (Supabase) con almacenamiento vectorial.
+3.  **Packages (`packages/`)**: Componentes y configuraciones compartidas.
 
-## Recent Modifications & Fixes
+## Estado Actual y Cambios Recientes
+-   **Branding**: Icono de la aplicación (`icon.svg`) rediseñado con los colores de la bandera dominicana y configurado correctamente en la metadata de Next.js (sirviéndose desde `/icon.svg`).
+-   **IA Core**: Implementado **Query Rewriting** en `ChatService.java` para mejorar la recuperación de documentos legales. Además, se actualizó la lógica de memoria de chat (`CHAT_MEMORY_CONVERSATION_ID_KEY`) usando cadenas literales para asegurar compatibilidad con **Spring AI 2.0.0-M3**.
+-   **Configuración de Modelos**: Uso de OpenRouter con URL base corregida (`/api`) para evitar duplicación de rutas. Modelos primarios: Nvidia Nemotron 70B y Llama 3.1.
+-   **Seguridad**: Archivo `SecurityConfig.java` configurado para desactivar CSRF en desarrollo, permitiendo pruebas POST directas desde clientes externos (Postman).
+-   **Infraestructura**: Actualizado a Java 25 y Spring Boot 4.0.4.
 
-### 1. Folder Rename: `apps/` -> `frontend/`
-- Renamed the main application directory to `frontend/`.
-- Updated `pnpm-workspace.yaml` to include `"frontend/*"`.
-- Updated `README.md` to reflect the new structure.
-
-### 2. Individual Scripts (`package.json`)
-Added individual scripts to the root `package.json` for independent application management:
-- `dev:web`: `turbo run dev --filter=web`
-- `dev:native`: `turbo run dev --filter=native`
-- `start:web`: `turbo run start --filter=web`
-- `start:native`: `turbo run dev --filter=native`
-
-### 3. TypeScript & Module Resolution Fixes
-Resolved `TS2307` and `TS2304` errors:
-- **`packages/typescript-config/nextjs.json`**: 
-  - Set `jsx: "react-jsx"` to fix missing DOM names (e.g., `div`).
-  - Set `moduleResolution: "bundler"` for modern workspace resolution.
-  - Updated `include` to cover project roots.
-- **`packages/ui/package.json`**:
-  - Updated `main`, `types`, and `exports` to point directly to `src/index.tsx`. This allows the workspace to resolve the source code and types in real-time without needing a separate build step during development.
-
-## Developer Notes
-- Always run `pnpm install` after structural changes to refresh workspace symlinks.
-- If TypeScript errors persist in the IDE, restart the TS Server.
-
-## Coding Conventions
-To ensure consistency across the codebase, follow these naming conventions:
-
-### General (TypeScript & Java)
-- **Classes & Interfaces**: Use `PascalCase`.
-  - *Example*: `interface UserProfile`, `class BackendService`.
-- **Methods & Variables**: Use `camelCase`.
-  - *Example*: `function getUserData()`, `const userList = []`.
-
-### Frontend Specific
-- **Components**: Use `PascalCase` for React components.
-  - *Example*: `export function Button()`.
-- **Hooks**: Always prefix with `use` and use `camelCase`.
-  - *Example*: `useAuth()`.
+## Directrices para Agentes
+-   **Monorepo**: Siempre considerar el impacto de cambios en `packages/ui` tanto en Web como en Native.
+-   **IA**: El backend utiliza un sistema de **Fallback** en `AiConfig.java`. Al añadir modelos, actualizar tanto `application.properties` como los fallbacks.
+-   **Documentos**: El `knowledge-base` en `backend` contiene PDFs legales dominicanos que se ingieren automáticamente mediante `IngestionService.java`.
+-   **Estilo**: Seguir convenciones de `camelCase` para variables/métodos y `PascalCase` para clases/componentes.

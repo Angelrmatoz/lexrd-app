@@ -1,22 +1,25 @@
 module.exports = {
   reactStrictMode: true,
-  turbopack: {
-    resolveAlias: {
-      "react-native": "react-native-web",
-    },
-    resolveExtensions: [
-      ".web.js",
-      ".web.jsx",
-      ".web.ts",
-      ".web.tsx",
-      ".js",
-      ".jsx",
-      ".ts",
-      ".tsx",
-      ".json",
-    ],
+  output: "standalone",
+  transpilePackages: ["@repo/ui"],
+  async redirects() {
+    return [
+      {
+        source: "/documentos-oficiales",
+        destination: "/official-documents",
+        permanent: true,
+      },
+    ];
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
+    // Configuración para que el Hot Reload funcione en Docker (Windows/Mac)
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       // Transform all direct `react-native` imports to `react-native-web`

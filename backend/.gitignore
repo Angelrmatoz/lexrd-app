@@ -14,7 +14,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+backend/.idea
 *.iws
 *.iml
 *.ipr
@@ -30,4 +30,20 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode
+
+### Environment Variables (API keys — NEVER commit) ###
+.env
+.env.local
+.env.production
+error.txt
+responseAI.txt
+
+### LexRD specific ###
+vectorstore.json
+
+# Qwen specific
+.qwen
+
+# JetBrains IDEs
+.idea
