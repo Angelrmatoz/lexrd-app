@@ -11,9 +11,6 @@ jobs:
   frontend-tests:
     name: Frontend Web Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend/web
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm --filter web test
 
   # ─── Backend Tests ───
   backend-tests:

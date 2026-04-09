@@ -195,6 +195,9 @@ describe('Integración: Flujo completo de envío', () => {
   });
 
   it('debe manejar errores del servidor y agregar mensaje de error', async () => {
+    // Espiamos console.error para silenciarlo durante este test
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     // Asegurarse de que el store está limpio
     act(() => {
       useChatStore.setState({
@@ -219,6 +222,9 @@ describe('Integración: Flujo completo de envío', () => {
     // Loading debe resetearse incluso con error
     expect(state.isLoading).toBe(false);
     expect(state.isThinking).toBe(false);
+
+    // Restaurar console.error
+    consoleSpy.mockRestore();
   });
 
   it('no debe enviar mensaje si el input está vacío', async () => {
