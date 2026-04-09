@@ -3,20 +3,18 @@
 Esta carpeta gestiona todas las interfaces de usuario de LexRD.
 
 ## Aplicaciones
--   **`web/`**: Next.js 15+ con `react-native-web`. Usa el App Router.
--   **`native/`**: Expo SDK 50+ / React Native.
+-   **`web/`**: Next.js 16+, App Router, Tailwind CSS, Shadcn UI.
+-   **`native/`**: Expo SDK 50+, React Native.
 
 ## Integración con Backend
--   **API Base**: El frontend se comunica con el backend de Spring Boot (puerto 5000 por defecto).
--   **Endpoints Clave**:
-    -   `POST /api/chat`: Envío de consultas legales. Cuerpo: `{"message": "..."}`.
-    -   `GET /api/health`: Verificación de estado del servidor.
+-   **API Base**: Backend de Spring Boot (puerto 5000).
+-   **Endpoints**:
+    -   `POST /api/chat`: Consulta de IA con RAG. Cuerpo: `{"message": "..."}`.
+    -   `GET /api/health`: Health check.
 
 ## Desarrollo y Estilo
--   **UI Compartida**: Los componentes se importan de `@repo/ui`. Si un componente necesita estilos específicos para web o móvil, se usan extensiones `.web.tsx` o condicionales de `Platform`.
--   **Temas**: Se prefiere el uso de CSS nativo/StyleSheet para mantener la consistencia. Evitar librerías externas de utilidades CSS a menos que sea necesario.
-
-## Notas para IA
--   **Branding**: El SVG usa los colores de la bandera dominicana. Asegurar que las referencias al icono usen la ruta `/icon.svg` y no `/public/icon.svg`. En `layout.tsx`, el icono debe definirse con `type: "image/svg+xml"`.
--   Al modificar la lógica de chat, asegurar que el manejo del `ChatResponse` incluya la visualización de las `sources` (fuentes legales).
--   Utilizar `TypeScript` estricto en todos los nuevos componentes.
+-   **UI Compartida**: Importar de `@repo/ui`.
+-   **Temas**: Preferir CSS nativo/StyleSheet para mantener consistencia entre plataformas.
+-   **Branding**: Icono en `/public/icon.svg`. Asegurar referencia con `type: "image/svg+xml"` en `layout.tsx`.
+-   **Tipado**: TypeScript estricto en todos los nuevos componentes.
+-   **IA Response**: Al procesar `ChatResponse`, visualizar siempre las fuentes (`sources`) recuperadas del backend.

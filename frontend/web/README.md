@@ -1,56 +1,29 @@
 # LexRD - Frontend Web
 
-La aplicación web de LexRD, construida con **Next.js 16** + **React 19** + **TailwindCSS v4**.
+La aplicación web de LexRD, construida con **Next.js 16** + **React 19** + **TailwindCSS**.
 
 ## Desarrollo
 
-### Sin Docker (recomendado)
-
+### Entorno Local
 Desde la raíz del monorepo:
-
 ```bash
-pnpm dev --filter=web
+pnpm dev:web
 ```
+La aplicación está disponible en: `http://localhost:3000`
 
-O desde esta carpeta:
-
-```bash
-pnpm dev
-```
-
-La app se abre en: `http://localhost:3000`
-
-### Con Docker (Hot Reload + Turbopack)
-
+### Con Docker
 Desde la raíz del monorepo:
-
 ```bash
 docker compose -f frontend/web/docker-compose.dev.yml up -d
 ```
-
-El hot reload funciona con **polling** configurado en `next.config.js` (`pollIntervalMs: 1000`), lo que permite que Turbopack detecte cambios en archivos montados desde el host.
-
-## Producción
-
-### Build local
-
-```bash
-pnpm build
-pnpm start
-```
-
-### Con Docker
-
-```bash
-docker compose -f frontend/web/docker-compose.yml up -d
-```
+*El hot reload está configurado con polling (`1000ms`) en `next.config.js` para compatibilidad con Turbopack.*
 
 ## Estructura
 
 | Ruta | Descripción |
 |---|---|
 | `/` | Chat principal |
-| `/library` | Biblioteca de jurisprudencia |
+| `/official-documents` | Biblioteca de jurisprudencia y documentos |
 
 ---
-*Para detalles de arquitectura del monorepo, consulta el `README.md` en la raíz del proyecto.*
+*Para detalles de arquitectura, consulta el `README.md` y `AGENTS.md` en la raíz del proyecto.*

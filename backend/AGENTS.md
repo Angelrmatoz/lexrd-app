@@ -1,25 +1,52 @@
-# Backend - Agents Documentation
+# Backend - Agents Documentation (AI Architecture)
 
-El corazón de IA de LexRD, construido con Java 25, Spring Boot 4.0.4 y Spring AI.
+Detalles técnicos de la implementación de IA en LexRD utilizando **Spring AI 2.0.0-M3**, **Java 25** y **Spring Boot 4.0.4**.
 
-## Arquitectura de IA
-El backend implementa un patrón RAG (Retrieval-Augmented Generation) avanzado:
-1.  **Ingesta**: `IngestionService.java` lee PDFs de `src/main/resources/knowledge-base`, los divide con `StructuralLawSplitter.java` y los guarda en `pgvector`.
-2.  **Consulta**: `ChatService.java` realiza **Query Rewriting** para convertir lenguaje natural en términos de búsqueda legal.
-3.  **Generación**: Combina el contexto recuperado con el modelo de IA (OpenRouter) para generar respuestas fundamentadas.
+## Arquitectura del Orquestador (ChatService)
 
-## Configuración Clave
--   **Seguridad**: `SecurityConfig.java` permite acceso libre a `/api/**` para facilitar pruebas POST desde Postman/Frontend en desarrollo.
--   **IA Fallback**: `FallbackChatModel.java` gestiona errores de API de OpenRouter intentando hasta 3 modelos diferentes secuencialmente.
--   **Base de Datos**: Usa Supabase (PostgreSQL) con la extensión `pgvector`.
+El backend no solo consulta un modelo; orquestación un pipeline multi-etapa:
 
-## Estructura de Paquetes
--   `config/`: Configuraciones de IA, Seguridad y Base de Datos.
--   `controller/`: Endpoints REST (`ChatController`, `DocumentController`).
--   `service/`: Lógica de negocio, RAG y procesamiento de documentos.
--   `model/`: DTOs de petición y respuesta.
+1.  **Routing (Enrutamiento)**: Un clasificador interno analiza la consulta del usuario contra la lista de documentos disponibles (`constitucion.pdf`, `codigo-civil.pdf`, etc.) para decidir si debe filtrar la búsqueda vectorial a un archivo específico o buscar en todos (`ALL`).
+2.  **Rewriting (Reescritura)**: El `REWRITE_PROMPT` transforma la pregunta original en una consulta semántica autocontenida, eliminando pronombres vagos y añadiendo contexto legal relevante.
+3.  **Retrieval (Recuperación)**:
+    -   **pgvector**: Búsqueda de similitud de coseno en PostgreSQL.
+    -   **Metadata Filtering**: Si el Router identificó un archivo, se aplica un filtro `filename == '...'` para reducir el ruido.
+    -   **TopK**: Se recuperan los fragmentos más relevantes para maximizar el contexto legal.
+4.  **Augmentation & Generation**: Se inyecta el contexto en el `SYSTEM_PROMPT` y se genera la respuesta final asegurando que la IA base sus respuestas únicamente en la legislación dominicana.
 
-## Notas para IA
--   **Spring AI 2.0.0-M3**: Debido a refactorizaciones en la API de Spring AI (como la clase `MessageChatMemoryAdvisor`), se recomienda usar valores literales para ciertas claves (ej. `"chat_memory_conversation_id"`) en lugar de depender de constantes que pueden cambiar de ubicación.
--   Cualquier cambio en la lógica de búsqueda debe probarse verificando que el `similarityThreshold` en `ChatService` sea el óptimo para los documentos actuales.
--   Si se añaden nuevos PDFs al `knowledge-base`, el sistema los procesará en el siguiente inicio si el `app.seeder.enabled` está en `true`.
+## Resiliencia y Fallback (FallbackChatModel)
+
+Para garantizar la disponibilidad del servicio, hemos implementado una capa de resiliencia personalizada:
+
+- **Estrategia**: Si el modelo primario (`gemini-3.1-flash-lite-preview`) experimenta errores transitorios (timeouts, 502/503, rate limits 429), el sistema intercepta la excepción e intenta automáticamente con modelos secundarios.
+- **Cadena de Fallback**:
+    1. `gemini-3.1-flash-lite-preview` (Primario)
+    2. `gemini-2.5-flash-lite`
+    3. `gemini-2.0-flash-lite`
+    4. `gemma-4-31b-it` (Último recurso)
+- **Streaming Support**: El fallback es compatible con respuestas en streaming, reiniciando el flujo de manera transparente para el usuario en caso de error en el modelo inicial.
+
+## Modelos de Embedding y Procesamiento Local
+
+-   **TransformersEmbeddingModel**: Se utiliza para generar vectores localmente.
+-   **Modelo**: `jina-embeddings-v2-base-es` de Hugging Face.
+    -   768 dimensiones.
+-   **Motor**: **DJL (Deep Java Library)** con el engine de **PyTorch**.
+-   **Warmup**: El `DjlWarmupRunner` descarga los binarios necesarios al arrancar para evitar latencias iniciales.
+
+## Estrategia de Fragmentación (Splitting)
+
+-   `StructuralLawSplitter`: Un splitter especializado que utiliza expresiones regulares para identificar la estructura jerárquica de las leyes dominicanas (Libros, Títulos, Capítulos, Secciones, Artículos).
+-   **Agrupamiento Semántico**: Los fragmentos pequeños se agrupan hasta alcanzar un límite lógico para preservar la coherencia del artículo legal.
+
+## Seguridad (ApiKeyFilter)
+
+El sistema implementa una capa de seguridad ligera para proteger los recursos de IA:
+- **Validación**: Se requiere una API Key configurada en `app.api.key`.
+- **Header**: Las peticiones deben incluir el header `x-api-key`.
+- **Endpoints Públicos**: `/api/health` y Swagger se mantienen públicos para monitoreo y documentación.
+
+## Memoria y Contexto
+
+-   **MessageWindowChatMemory**: Mantiene una ventana de los últimos mensajes.
+-   **Advisors**: Se utiliza `MessageChatMemoryAdvisor` para persistir el historial de conversación por `conversation_id`.

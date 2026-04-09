@@ -11,19 +11,19 @@ Este proyecto utiliza **Turborepo** con **pnpm** para gestionar múltiples aplic
 - `frontend/`: Capas de interfaz de usuario.
   - `web/`: Aplicación web construida con **Next.js** y `react-native-web`.
   - `native/`: Aplicación móvil multiplataforma construida con **Expo/React Native**.
-- `backend/`: Microservicio central construido con **Java 25** y **Spring Boot 4**.
-  - Implementa **Spring AI** para la integración con modelos de lenguaje.
-  - Utiliza **pgvector** para la búsqueda semántica en documentos legales.
+- `backend/`: Microservicio central construido con **Java 25** y **Spring Boot 4.0.4**.
+  - Implementa **Spring AI 2.0.0-M3** para la integración con modelos de lenguaje.
+  - Utiliza **pgvector** en PostgreSQL para la búsqueda semántica en documentos legales.
 - `packages/`: Código compartido entre aplicaciones.
   - `ui/`: Librería de componentes compartida (`@repo/ui`).
   - `typescript-config/`: Configuraciones base de TypeScript.
 
 ## Stack Tecnológico
 
-- **Frontend**: Next.js, Expo, React Native Web, TypeScript.
-- **Backend**: Spring Boot 4, Java 25, Spring AI.
-- **IA/ML**: OpenRouter (Modelos: Nvidia Nemotron, Llama 3.1), ONNX para embeddings locales.
-- **Base de Datos**: PostgreSQL con la extensión `pgvector` (alojado en Supabase).
+- **Frontend**: Next.js, Expo, React Native Web, TypeScript, Tailwind CSS, Shadcn UI.
+- **Backend**: Spring Boot 4.0.4, Java 25, Spring AI.
+- **IA/ML**: OpenRouter (Nvidia Nemotron, Llama 3.1), RAG con pgvector.
+- **Base de Datos**: PostgreSQL (Supabase) con la extensión `pgvector`.
 - **Gestión de Monorepo**: Turborepo, pnpm.
 
 ## Cómo empezar
@@ -59,8 +59,7 @@ pnpm dev:native
 ```
 
 ## Características Principales
-- **RAG (Retrieval-Augmented Generation)**: Consultas inteligentes sobre el Código Civil, Código Penal, Ley 63-17 y más.
-- **Query Rewriting**: Optimización de preguntas informales en términos legales para búsquedas precisas.
-- **Seguridad**: Configuración personalizada para facilitar pruebas de integración (CSRF desactivado en entorno de desarrollo).
-- **Branding Localizado**: Interfaz e iconografía adaptadas a los colores patrios de República Dominicana.
-- **Spring AI 2.0.0-M3**: Backend actualizado para soportar la última versión de Spring AI con manejo de memoria de conversación estable.
+- **RAG (Retrieval-Augmented Generation)**: Consultas inteligentes sobre el Código Civil, Penal, Laboral, Constitucional y leyes especiales de RD.
+- **Query Rewriting & Routing**: Optimización semántica y direccionamiento inteligente de consultas para mejorar la precisión de recuperación.
+- **Seguridad**: Configuración personalizada para facilitar pruebas de desarrollo.
+- **Branding Localizado**: Interfaz adaptada a la identidad visual de República Dominicana.
