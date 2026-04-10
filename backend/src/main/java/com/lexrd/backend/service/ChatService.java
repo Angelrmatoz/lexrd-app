@@ -46,60 +46,96 @@ public class ChatService {
 
     // Prompt para decidir qué archivo es el más relevante (Query Router)
     private static final String ROUTER_PROMPT = """
-        Te llamas LexRD y eres un experto legal en República Dominicana. Tu tarea es identificar cuál de estos archivos es el más relevante para buscar la respuesta.
-        
-        LISTA DE ARCHIVOS:
-        - constitucion.pdf (Derechos fundamentales, estructura del Estado)
-        - codigo-civil.pdf (Contratos, matrimonio, propiedad, sucesiones)
-        - codigo-penal.pdf (Delitos, crímenes, robo, homicidio)
-        - codigo-trabajo.pdf (Relación laboral, despido, prestaciones, salario)
-        - codigo-procesal-penal.pdf (Procedimientos de juicios penales)
-        - codigo-procedimiento-civil.pdf (Procedimientos de juicios civiles)
-        - codigo-tributario.pdf (Impuestos, DGII)
-        - codigo-monetario-financiero.pdf (Bancos, préstamos, moneda)
-        - codigo-nna.pdf (Niños, niñas y adolescentes)
-        - codigo-comercio.pdf (Empresas, actos de comercio)
-        - Ley-No.-63-17-de-Movilidad-Transporte-Terrestre-Transito-y-Seguridad-Vial-en-Republica-Dominicana-Deroga-la-ley-241-1.pdf (Tránsito, choques, multas)
-        
-        Si la pregunta es general o abarca varios temas, responde: ALL.
-        Si no estás seguro, responde: ALL.
-        
-        Responde ÚNICAMENTE el nombre del archivo o la palabra ALL.
-        
-        Pregunta del usuario: {user_message}
-        """;
+            Te llamas LexRD y eres un experto legal en República Dominicana. Tu tarea es identificar cuál de estos archivos es el más relevante para buscar la respuesta.
+            
+            LISTA DE ARCHIVOS POR CATEGORÍA:
+            
+            CONSTITUCIÓN Y ADMINISTRATIVO:
+            - constitucion-republica-dominicana.pdf (Derechos fundamentales, estructura del Estado)
+            - ley-137-11-tribunal-constitucional-procedimientos.pdf (Recursos de amparo, constitucionalidad)
+            - ley-107-13-procedimiento-administrativo.pdf (Derechos ante la administración pública)
+            - ley-200-04-libre-acceso-informacion-publica.pdf (Solicitudes de información al Estado)
+            
+            CÓDIGOS PRINCIPALES:
+            - codigo-civil.pdf (Contratos, matrimonio, propiedad, sucesiones, responsabilidad civil)
+            - codigo-penal.pdf (Delitos, crímenes, robo, homicidio)
+            - codigo-trabajo.pdf (Relación laboral, despido, prestaciones, salario)
+            - codigo-tributario.pdf (Impuestos, ITBIS, ISR, DGII)
+            - codigo-monetario-financiero.pdf (Bancos, préstamos, moneda, cheques)
+            - codigo-comercio.pdf (Actos de comercio, comerciantes)
+            - ley-136-03-codigo-nna.pdf (Niños, niñas y adolescentes, guarda, manutención)
+            
+            PROCEDIMIENTOS:
+            - codigo-procesal-penal.pdf (Procedimientos de juicios penales, arrestos)
+            - codigo-procedimiento-civil.pdf (Procedimientos de juicios civiles, embargos)
+            
+            COMERCIO, CONSUMO Y TECNOLOGÍA:
+            - ley-479-08-sociedades-comerciales.pdf (Creación de empresas, SRL, SA, asambleas)
+            - ley-358-05-proteccion-consumidor.pdf (Derechos del consumidor, ProConsumidor)
+            - ley-126-02-comercio-electronico.pdf (Firmas digitales, documentos electrónicos)
+            - ley-20-00-propiedad-industrial.pdf (Marcas, patentes, nombres comerciales)
+            - ley-65-00-derecho-autor.pdf (Derechos de autor, propiedad intelectual)
+            
+            FAMILIA Y SUCESIONES:
+            - ley-1306-bis-divorcio.pdf (Procedimiento de divorcio)
+            - ley-189-01-filiacion.pdf (Reconocimiento de hijos)
+            
+            INMOBILIARIO Y VIVIENDA:
+            - ley-108-05-registro-inmobiliario.pdf (Títulos de propiedad, deslindes, terrenos)
+            - ley-4314-alquileres.pdf (Depósitos de alquiler, desalojos)
+            - ley-5038-condominios.pdf (Regimen de condominios, juntas de vecinos)
+            
+            PENAL ESPECIAL Y SEGURIDAD:
+            - ley-155-17-lavado-activos.pdf (Lavado de activos)
+            - ley-53-07-alta-tecnologia.pdf (Hackeo, difamación en redes, estafas electrónicas)
+            - ley-50-88-drogas.pdf (Sustancias prohibidas)
+            - ley-631-16-armas.pdf (Porte y tenencia de armas)
+            
+            TRÁNSITO:
+            - ley-63-17-transito-movilidad.pdf (Choques, multas, licencias, INTRANT)
+            
+            SEGURIDAD SOCIAL:
+            - ley-87-01-seguridad-social.pdf (ARS, AFP, pensiones, salud)
+            
+            Si la pregunta es general o abarca varios temas, responde: ALL.
+            Si no estás seguro, responde: ALL.
+            
+            Responde ÚNICAMENTE el nombre del archivo o la palabra ALL.
+            
+            Pregunta del usuario: {user_message}
+            """;
 
     // Prompt para reformular la consulta (Query Rewriting)
     private static final String REWRITE_PROMPT = """
-        Te llamas LexRD y eres un experto legal en República Dominicana.
-        Tu tarea es reformular la pregunta del usuario para que sea una pregunta clara, completa y autocontenida, ideal para buscar en una base de datos vectorial de leyes dominicanas.
-        - Mantén la intención semántica original y el vocabulario legal.
-        - NO respondas a la pregunta, SOLO devuelve la pregunta reformulada.
-        
-        Pregunta original del usuario: {user_message}
-        
-        Pregunta reformulada:
-        """;
+            Te llamas LexRD y eres un experto legal en República Dominicana.
+            Tu tarea es reformular la pregunta del usuario para que sea una pregunta clara, completa y autocontenida, ideal para buscar en una base de datos vectorial de leyes dominicanas.
+            - Mantén la intención semántica original y el vocabulario legal.
+            - NO respondas a la pregunta, SOLO devuelve la pregunta reformulada.
+            
+            Pregunta original del usuario: {user_message}
+            
+            Pregunta reformulada:
+            """;
 
     private static final String SYSTEM_PROMPT = """
-        Te llamas LexRD, eres un asistente legal experto en la normativa de la República Dominicana.
-        Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
-        
-        A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
-        Si la respuesta no está explícitamente en el CONTEXTO LEGAL proporcionado, DEBES decir que no tienes información suficiente basándote en los documentos cargados. NO inventes procedimientos, ni cites leyes derogadas, ni uses conocimientos de otros países.
-        Menciona siempre que tus respuestas son informativas y no sustituyen el consejo de un abogado profesional.
-        
-        Utiliza un tono formal, claro y servicial.
-        
-        CONTEXTO LEGAL:
-        {context}
-        """;
+            Te llamas LexRD, eres un asistente legal experto en la normativa de la República Dominicana.
+            Tu misión es proporcionar respuestas precisas y profesionales basadas únicamente en la legislación dominicana.
+            
+            A continuación se te proporcionan fragmentos de leyes dominicanas relevantes para responder la consulta del usuario.
+            Si la respuesta no está explícitamente en el CONTEXTO LEGAL proporcionado, DEBES decir que no tienes información suficiente basándote en los documentos cargados. NO inventes procedimientos, ni cites leyes derogadas, ni uses conocimientos de otros países.
+            Menciona siempre que tus respuestas son informativas y no sustituyen el consejo de un abogado profesional.
+            
+            Utiliza un tono formal, claro y servicial.
+            
+            CONTEXTO LEGAL:
+            {context}
+            """;
 
     public ChatResponse processChat(ChatRequest request) {
         log.info("Processing chat request for message: {} (Session: {})", request.getMessage(), request.getSessionId());
 
         String sessionId = (request.getSessionId() != null && !request.getSessionId().isEmpty())
-                           ? request.getSessionId() : "default-session";
+                ? request.getSessionId() : "default-session";
 
         // --- PASO 1: IA ENRUTA LA CONSULTA AL ARCHIVO CORRECTO ---
         PromptTemplate routerTemplate = new PromptTemplate(ROUTER_PROMPT);
@@ -124,10 +160,10 @@ public class ChatService {
         if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
             log.info("Filtrando búsqueda vectorial por archivo sugerido: {}", targetFile);
             searchRequest = SearchRequest.builder()
-                .query(optimizedQuery)
-                .topK(25)
-                .filterExpression("filename == '" + targetFile + "'")
-                .build();
+                    .query(optimizedQuery)
+                    .topK(25)
+                    .filterExpression("filename == '" + targetFile + "'")
+                    .build();
         }
 
         List<Document> similarDocuments = vectorStore.similaritySearch(searchRequest);
