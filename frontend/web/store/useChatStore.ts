@@ -69,8 +69,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (!response.ok) throw new Error("Error del servidor");
 
       const data: ChatResponse = await response.json();
-      const fullResponse = data.response || "";
+      let fullResponse = data.response || "";
       const sources = data.sources || [];
+
+      // Filtrar bloques de razonamiento interno (thought/thinking)
+      fullResponse = fullResponse
+        .replace(/<thought>[\s\S]*?<\/thought>/gi, "")
+        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
 
       set({ isThinking: false });
 
