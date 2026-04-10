@@ -19,12 +19,12 @@ export function ChatInput({
   isDisabled = false,
 }: ChatInputProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pt-12 pb-14 px-6 z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pt-12 px-6 z-40" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 3.5rem)" }}>
       <div className="max-w-3xl mx-auto">
         <div className="relative flex items-end">
           <div className="w-full flex items-end bg-surface-container-lowest border border-outline-variant/10 rounded-2xl pl-6 pr-2 py-2 shadow-2xl focus-within:bg-surface-container-highest transition-all duration-300">
             <Textarea
-              className="flex-grow bg-transparent border-none focus-visible:ring-0 text-on-surface placeholder:text-on-surface-variant/40 text-sm py-3 min-h-[44px] max-h-[200px] resize-none hide-scrollbar disabled:opacity-50"
+              className="flex-grow bg-transparent border-none focus-visible:ring-0 text-on-surface placeholder:text-on-surface-variant/40 text-base sm:text-sm py-3 min-h-[44px] max-h-[200px] resize-none hide-scrollbar disabled:opacity-50"
               placeholder={isDisabled ? "Conversación bloqueada..." : "Consultar LexRD..."}
               value={input}
               onChange={(e) => setInput(e.target.value)}

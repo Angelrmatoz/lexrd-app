@@ -74,15 +74,15 @@ export default function Page() {
     };
 
     return (
-        <div className="flex min-h-screen text-on-surface bg-surface">
+        <div className="flex flex-col h-[100dvh] text-on-surface bg-surface overflow-hidden">
             <AppSidebar onNewChat={clearMessages}/>
 
-            <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
+            <div className="flex flex-col flex-1 relative bg-surface overflow-hidden min-h-0">
                 <NavBar onNewChat={clearMessages}/>
 
-                {/* Main Canvas */}
-                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-grow flex flex-col pt-24 pb-32 overflow-y-auto hide-scrollbar">
-                    <div className="w-full max-w-3xl mx-auto px-6 py-12 flex-grow">
+                {/* Área de mensajes: ocupa espacio restante, scrolleable */}
+                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
+                    <div className="w-full max-w-3xl mx-auto px-6 py-12">
                         {messages.length === 0 ? (
                             /* Welcome State */
                             <div

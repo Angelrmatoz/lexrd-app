@@ -413,10 +413,10 @@ describe('Integración: NavBar + AppSidebar con contexto', () => {
     render(<AppSidebar onNewChat={mockOnNewChat} />);
 
     const chatLink = screen.getByText('Chat');
-    const libraryLink = screen.getByText('Library');
+    const docLink = screen.getByText('Documentos Oficiales');
 
     expect(chatLink.closest('a')).toHaveAttribute('href', '/');
-    expect(libraryLink.closest('a')).toHaveAttribute('href', '/library');
+    expect(docLink.closest('a')).toHaveAttribute('href', '/documentos-oficiales');
   });
 
   it('deben coexistir sin conflictos de contexto de Sidebar', () => {

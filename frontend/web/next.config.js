@@ -2,6 +2,7 @@ module.exports = {
   reactStrictMode: true,
   output: "standalone",
   transpilePackages: ["@repo/ui"],
+  allowedDevOrigins: ['192.168.88.8'],
   async redirects() {
     return [
       {
