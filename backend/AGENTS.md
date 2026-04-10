@@ -20,11 +20,11 @@ Para garantizar la disponibilidad del servicio, hemos implementado una capa de r
 
 - **Estrategia**: Si el modelo primario (`gemini-3.1-flash-lite-preview`) experimenta errores transitorios (timeouts, 502/503, rate limits 429), el sistema intercepta la excepción e intenta automáticamente con modelos secundarios.
 - **Cadena de Fallback**:
-    1. `gemini-3.1-flash-lite-preview` (Primario)
+    1. `gemini-2.5-flash` (Primario)
     2. `gemini-2.5-flash-lite`
-    3. `gemini-2.0-flash-lite`
-    4. `gemma-4-31b-it` (Último recurso)
-- **Streaming Support**: El fallback es compatible con respuestas en streaming, reiniciando el flujo de manera transparente para el usuario en caso de error en el modelo inicial.
+    3. `gemini-2.0-flash`
+    4. `gemini-2.0-flash-lite`
+    5. `gemma-4-31b-it` (Último recurso)
 
 ## Modelos de Embedding y Procesamiento Local
 

@@ -10,7 +10,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -155,50 +154,4 @@ class ChatControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    // ──────────────────────────────────────────────
-    // POST /api/chat/stream - Streaming SSE
-    // ──────────────────────────────────────────────
-
-    @Test
-    void cuandoStreamingValido_debeRetornar200ConTextEventStream() throws Exception {
-        ChatResponse chunk1 = ChatResponse.builder().response("H").sources(List.of("doc.pdf")).build();
-        ChatResponse chunk2 = ChatResponse.builder().response("ola").sources(List.of("doc.pdf")).build();
-
-        when(chatService.streamChat(any(ChatRequest.class)))
-                .thenReturn(Flux.just(chunk1, chunk2));
-
-        String body = """
-            {
-                "message": "Hola",
-                "sessionId": "session-1"
-            }
-            """;
-
-        mockMvc.perform(post("/api/chat/stream")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_EVENT_STREAM));
-
-        verify(chatService).streamChat(any(ChatRequest.class));
-    }
-
-    @Test
-    void cuandoStreamingSinMensaje_debeRetornar200() throws Exception {
-        String body = """
-            {
-                "message": "",
-                "sessionId": "session-1"
-            }
-            """;
-
-        // El controller NO valida mensaje vacio en el endpoint de stream
-        when(chatService.streamChat(any(ChatRequest.class)))
-                .thenReturn(Flux.empty());
-
-        mockMvc.perform(post("/api/chat/stream")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk());
-    }
 }

@@ -35,9 +35,10 @@ class FallbackChatModelTest {
     @Mock
     private ChatModel baseChatModel;
 
-    private final String primaryModel = "gemini-3.1-flash-lite";
+    private final String primaryModel = "gemini-2.5-flash";
     private final List<String> fallbackModels = List.of(
             "gemini-2.5-flash-lite",
+            "gemini-2.0-flash",
             "gemini-2.0-flash-lite",
             "gemma-4-31b-it"
     );
@@ -113,7 +114,7 @@ class FallbackChatModelTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Todos los modelos");
 
-        verify(baseChatModel, times(4)).call(any(Prompt.class));
+        verify(baseChatModel, times(5)).call(any(Prompt.class));
     }
 
     @Test

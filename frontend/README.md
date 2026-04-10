@@ -9,7 +9,7 @@ Esta carpeta contiene las aplicaciones de interfaz de usuario de la plataforma L
 ## Características Clave
 - **UI Compartida**: Ambas aplicaciones consumen componentes de la librería local `@repo/ui` (ubicada en `packages/ui`).
 - **TypeScript**: Estricto en todo el código.
-- **Comunicación con Backend**: Conexión vía API al servicio de IA en Spring Boot (puerto 5000).
+- **Comunicación con Backend**: Conexión vía API al servicio de IA en Spring Boot (puerto 4000). Respuesta JSON síncrona con animación typewriter manejada en el frontend.
 
 ## Comandos de Ejecución (desde la raíz)
 - **Ejecutar Web**: `pnpm dev:web`

@@ -21,7 +21,6 @@ import com.lexrd.backend.dto.ChatRequest;
 import com.lexrd.backend.dto.ChatResponse;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 
 @Service
 @Slf4j
@@ -158,59 +157,4 @@ public class ChatService {
                 .build();
     }
 
-    public Flux<ChatResponse> streamChat(ChatRequest request) {
-        log.info("Streaming chat request for message: {} (Session: {})", request.getMessage(), request.getSessionId());
-
-        String sessionId = (request.getSessionId() != null && !request.getSessionId().isEmpty())
-                           ? request.getSessionId() : "default-session";
-
-        // --- PASO 1: IA ENRUTA LA CONSULTA ---
-        PromptTemplate routerTemplate = new PromptTemplate(ROUTER_PROMPT);
-        var routerMessage = routerTemplate.createMessage(Map.of("user_message", request.getMessage()));
-        String targetFile = chatModel.call(new Prompt(List.of(routerMessage)))
-                .getResult().getOutput().getText().trim();
-
-        // --- PASO 2: REESCRIBIR LA CONSULTA ---
-        PromptTemplate rewriteTemplate = new PromptTemplate(REWRITE_PROMPT);
-        var rewriteMessage = rewriteTemplate.createMessage(Map.of("user_message", request.getMessage()));
-        String optimizedQuery = chatModel.call(new Prompt(List.of(rewriteMessage)))
-                .getResult().getOutput().getText().trim();
-
-        // --- PASO 3: BÚSQUEDA VECTORIAL ---
-        SearchRequest searchRequest = SearchRequest.builder()
-                .query(optimizedQuery)
-                .topK(25)
-                .build();
-
-        if (!targetFile.equalsIgnoreCase("ALL") && !targetFile.isEmpty()) {
-            searchRequest = SearchRequest.builder()
-                .query(optimizedQuery)
-                .topK(25)
-                .filterExpression("filename == '" + targetFile + "'")
-                .build();
-        }
-
-        List<Document> similarDocuments = vectorStore.similaritySearch(searchRequest);
-
-        String context = similarDocuments.stream()
-                .map(Document::getText)
-                .collect(Collectors.joining("\n\n---\n\n"));
-
-        List<String> sources = similarDocuments.stream()
-                .map(doc -> (String) doc.getMetadata().getOrDefault("filename", "Documento Legal"))
-                .distinct()
-                .collect(Collectors.toList());
-
-        // --- PASO 4: RESPUESTA EN STREAMING CON MEMORIA ---
-        return chatClient.prompt()
-                .advisors(a -> a.param("chat_memory_conversation_id", sessionId))
-                .system(s -> s.text(SYSTEM_PROMPT).param("context", context))
-                .user(request.getMessage())
-                .stream()
-                .content()
-                .map(text -> ChatResponse.builder()
-                        .response(text)
-                        .sources(sources)
-                        .build());
-    }
 }

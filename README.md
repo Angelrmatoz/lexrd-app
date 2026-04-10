@@ -22,7 +22,7 @@ Este proyecto utiliza **Turborepo** con **pnpm** para gestionar múltiples aplic
 
 - **Frontend**: Next.js, Expo, React Native Web, TypeScript, Tailwind CSS, Shadcn UI.
 - **Backend**: Spring Boot 4.0.4, Java 25, Spring AI.
-- **IA/ML**: OpenRouter (Nvidia Nemotron, Llama 3.1), RAG con pgvector.
+- **IA/ML**: Google Gemini (2.5 Flash, 2.0 Flash, Gemma 4) con sistema multi-model fallback, RAG con pgvector.
 - **Base de Datos**: PostgreSQL (Supabase) con la extensión `pgvector`.
 - **Gestión de Monorepo**: Turborepo, pnpm.
 
@@ -76,7 +76,8 @@ Debes configurar tu instancia de Azure Container Apps para que tenga acceso a GH
 
 ### Secretos en GitHub
 Asegúrate de tener configurado:
-- `GEMINI_API_KEY`: Tu clave de API de Google Gemini.
+- `GEMINI_API_KEY`: Tu clave de API de Google Gemini (modelos Gemini 2.5 Flash, 2.0 Flash, Gemma 4).
+- `API_KEY_FILTER`: Clave de seguridad para proteger los endpoints del backend.
 - (El token `GITHUB_TOKEN` para GHCR se gestiona automáticamente por el workflow).
 
 ## Características Principales
