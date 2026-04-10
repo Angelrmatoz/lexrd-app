@@ -40,7 +40,10 @@ class FallbackChatModelTest {
             "gemini-2.5-flash-lite",
             "gemini-2.0-flash",
             "gemini-2.0-flash-lite",
-            "gemma-4-31b-it"
+            "gemini-3-flash-preview",
+            "gemini-3.1-flash-lite-preview",
+            "gemma-4-31b-it",
+            "gemma-4-26b-a4b-it"
     );
 
     private FallbackChatModel fallbackChatModel;
@@ -114,7 +117,7 @@ class FallbackChatModelTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Todos los modelos");
 
-        verify(baseChatModel, times(5)).call(any(Prompt.class));
+        verify(baseChatModel, times(8)).call(any(Prompt.class));
     }
 
     @Test
