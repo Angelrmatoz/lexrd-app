@@ -27,6 +27,18 @@ public class AiConfig {
     @Value("${ai.model.fallback4}")
     private String fallback4;
 
+    @Value("${ai.model.fallback5}")
+    private String fallback5;
+
+    @Value("${ai.model.fallback6}")
+    private String fallback6;
+
+    @Value("${ai.model.fallback7}")
+    private String fallback7;
+
+    @Value("${ai.model.fallback8}")
+    private String fallback8;
+
     /**
      * Fallback configuration for AI chat models.
      * This will try the primary dto and then fall back to others if it fails.
@@ -34,9 +46,10 @@ public class AiConfig {
     @Bean
     @Primary
     public ChatModel fallbackChatModel(ChatModel defaultChatModel) {
-        log.info("Inicializando FallbackChatModel con primario: {} y respaldos: {}, {}, {}, {}",
-                 primaryModel, fallback1, fallback2, fallback3, fallback4);
-        return new FallbackChatModel(defaultChatModel, primaryModel, List.of(fallback1, fallback2, fallback3, fallback4));
+        log.info("Inicializando FallbackChatModel con primario: {} y respaldos: {}, {}, {}, {}, {}, {}, {}, {}",
+                 primaryModel, fallback1, fallback2, fallback3, fallback4, fallback5, fallback6, fallback7, fallback8);
+        return new FallbackChatModel(defaultChatModel, primaryModel,
+                                     List.of(fallback1, fallback2, fallback3, fallback4, fallback5, fallback6, fallback7, fallback8));
     }
 
     // Se ha eliminado el @Bean public VectorStore vectorStore(...) 
