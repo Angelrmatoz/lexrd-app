@@ -25,7 +25,7 @@ export default function LibraryPage() {
         <NavBar onNewChat={handleNewChat} />
 
         <main className="flex-grow pt-28 pb-12 px-6 overflow-y-auto hide-scrollbar">
-          <div className="max-w-4xl mx-auto space-y-16">
+          <div className="max-w-6xl mx-auto space-y-16">
             {/* Project Hero */}
             <div className="space-y-6 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/10 text-tertiary text-[10px] font-bold uppercase tracking-widest">
@@ -34,17 +34,17 @@ export default function LibraryPage() {
               </div>
               <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-tight">
                 Biblioteca <span className="text-dominican-red">Digital</span> <br />
-                de Jurisprudencia
+                de <span className="text-dominican-blue">Jurisprudencia</span>
               </h1>
               <p className="text-lg text-on-surface-variant max-w-2xl leading-relaxed font-light">
                 LexRD es un sistema de inteligencia soberana diseñado para democratizar el acceso 
-                al conocimiento legal dominicano. Utiliza tecnología RAG (Retrieval-Augmented Generation) 
-                para analizar documentos oficiales y proporcionar respuestas fundamentadas en la ley vigente.
+                al conocimiento legal dominicano. Nuestra base de datos ha sido expandida y 
+                reestructurada para cubrir todas las ramas fundamentales del derecho nacional.
               </p>
             </div>
 
             {/* Documents Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {LEGAL_CATEGORIES.map((category, idx) => (
                 <div 
                   key={idx}
