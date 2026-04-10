@@ -5,7 +5,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
+
+import java.util.Arrays;
 
 @SpringBootApplication
 @EnableAsync
@@ -26,16 +29,20 @@ public class BackendApplication {
     public CommandLineRunner printDatabaseConfig(
             @Value("${spring.datasource.url}") String dbUrl,
             @Value("${server.port:8080}") String serverPort,
-            @Value("${spring.profiles.active:dev}") String activeProfile) {
+            Environment env) {
         return args -> {
+            String[] activeProfiles = env.getActiveProfiles();
+            String activeProfile = activeProfiles.length > 0 ? activeProfiles[0] : "dev";
+            
             String displayUrl = dbUrl;
-            if ("prod".equalsIgnoreCase(activeProfile)) {
+            if (Arrays.asList(activeProfiles).contains("prod")) {
                 // En producción oculta específicamente la contraseña en la URL
                 displayUrl = displayUrl.replaceAll("(?i)(password|passwd|pwd)=[^&]*", "$1=***");
             }
 
             System.out.println("=========================================================");
             System.out.println("🚀 LexRD Backend is up and running!");
+            System.out.println("🌍 Active Profile: " + activeProfile);
             System.out.println("🔌 Server Port: " + serverPort);
             System.out.println("🗄️  Database Connection: " + displayUrl);
             System.out.println("📖 Swagger UI: http://localhost:" + serverPort + "/swagger-ui.html");

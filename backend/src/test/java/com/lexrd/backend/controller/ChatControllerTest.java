@@ -118,7 +118,7 @@ class ChatControllerTest {
     void cuandoMensajeValidoSinSessionId_debeRetornar200() throws Exception {
         ChatResponse mockResponse = ChatResponse.builder()
                 .response("Respuesta general.")
-                .sources(List.of("constitucion.pdf"))
+                .sources(List.of("constitucion-republica-dominicana.pdf"))
                 .build();
 
         when(chatService.processChat(any(ChatRequest.class))).thenReturn(mockResponse);

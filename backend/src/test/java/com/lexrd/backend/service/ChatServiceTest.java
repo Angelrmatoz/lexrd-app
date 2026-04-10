@@ -97,7 +97,7 @@ class ChatServiceTest {
     void cuandoConsultaGeneral_debeBuscarSinFiltro() {
         mockRouterResponse("ALL");
         mockVectorStoreResponse(List.of(
-                doc("Articulo 1", "constitucion.pdf"),
+                doc("Articulo 1", "constitucion-republica-dominicana.pdf"),
                 doc("Articulo 2", "codigo-civil.pdf")
         ));
         mockChatClientResponse("Respuesta legal.");
@@ -106,7 +106,7 @@ class ChatServiceTest {
                 new ChatRequest("¿Cuales son mis derechos?", null));
 
         assertThat(resp.getResponse()).isEqualTo("Respuesta legal.");
-        assertThat(resp.getSources()).containsExactly("constitucion.pdf", "codigo-civil.pdf");
+        assertThat(resp.getSources()).containsExactly("constitucion-republica-dominicana.pdf", "codigo-civil.pdf");
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(vectorStore).similaritySearch(captor.capture());
@@ -147,8 +147,8 @@ class ChatServiceTest {
     void cuandoDocumentosDuplicados_debeDeduplicarFuentes() {
         mockRouterResponse("ALL");
         mockVectorStoreResponse(List.of(
-                doc("Art 1", "constitucion.pdf"),
-                doc("Art 2", "constitucion.pdf"),
+                doc("Art 1", "constitucion-republica-dominicana.pdf"),
+                doc("Art 2", "constitucion-republica-dominicana.pdf"),
                 doc("Art 3", "codigo-civil.pdf")
         ));
         mockChatClientResponse("Respuesta");
@@ -157,7 +157,7 @@ class ChatServiceTest {
                 new ChatRequest("Test", null));
 
         assertThat(resp.getSources()).hasSize(2);
-        assertThat(resp.getSources()).containsExactly("constitucion.pdf", "codigo-civil.pdf");
+        assertThat(resp.getSources()).containsExactly("constitucion-republica-dominicana.pdf", "codigo-civil.pdf");
     }
 
     @Test
@@ -175,7 +175,7 @@ class ChatServiceTest {
     @Test
     void cuandoRouterRespondeAllMinusculas_debeFuncionar() {
         mockRouterResponse("all");
-        mockVectorStoreResponse(List.of(doc("General", "constitucion.pdf")));
+        mockVectorStoreResponse(List.of(doc("General", "constitucion-republica-dominicana.pdf")));
         mockChatClientResponse("Respuesta general.");
 
         com.lexrd.backend.dto.ChatResponse resp = chatService.processChat(
