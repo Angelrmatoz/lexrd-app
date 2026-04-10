@@ -32,9 +32,9 @@ describe('AppSidebar', () => {
     expect(screen.getByText('Chat')).toBeInTheDocument();
   });
 
-  it('debe mostrar el enlace de Library', () => {
+  it('debe mostrar el enlace de Documentos Oficiales', () => {
     render(<AppSidebar onNewChat={mockOnNewChat} />);
-    expect(screen.getByText('Library')).toBeInTheDocument();
+    expect(screen.getByText('Documentos Oficiales')).toBeInTheDocument();
   });
 
   it('debe mostrar la etiqueta de Navegación', () => {
@@ -42,10 +42,10 @@ describe('AppSidebar', () => {
     expect(screen.getByText('Navegación')).toBeInTheDocument();
   });
 
-  it('el enlace de Library debe apuntar a /library', () => {
+  it('el enlace de Documentos Oficiales debe apuntar a /documentos-oficiales', () => {
     render(<AppSidebar onNewChat={mockOnNewChat} />);
-    const libraryLink = screen.getByText('Library').closest('a');
-    expect(libraryLink).toHaveAttribute('href', '/library');
+    const link = screen.getByText('Documentos Oficiales').closest('a');
+    expect(link).toHaveAttribute('href', '/documentos-oficiales');
   });
 
   it('el enlace de Chat debe apuntar a /', () => {
