@@ -13,15 +13,20 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Page() {
-    const {messages, isLoading, isThinking, sendMessage, clearMessages, limitReached} = useChatStore();
+    const {messages, isLoading, isThinking, isTyping, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
     const [autoScroll, setAutoScroll] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const streamingAnchorRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+    };
+
+    const scrollToStreamingAnchor = () => {
+        streamingAnchorRef.current?.scrollIntoView({behavior: "smooth", block: "end"});
     };
 
     // Detectar si el usuario está cerca del fondo del scroll
@@ -32,18 +37,20 @@ export default function Page() {
         return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
     };
 
-    // Al enviar un mensaje, forzar scroll al fondo y reactivar autoScroll
+    // Al enviar un nuevo mensaje (usuario), forzar scroll al fondo y reactivar autoScroll
     useEffect(() => {
         setAutoScroll(true);
         scrollToBottom();
     }, [messages.length]);
 
-    // Durante el typewriter, solo hacer scroll si el usuario está cerca del fondo
+    // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
+    // Seguimos el streamingAnchorRef que está antes de las fuentes
+    const lastMessageContent = messages.length > 0 ? messages[messages.length - 1].content : "";
     useEffect(() => {
-        if (autoScroll && isNearBottom()) {
-            scrollToBottom();
+        if (isTyping && autoScroll && isNearBottom()) {
+            scrollToStreamingAnchor();
         }
-    }, [messages]);
+    }, [lastMessageContent, isTyping, autoScroll]);
 
     // Detectar scroll manual del usuario
     const handleScroll = () => {
@@ -133,13 +140,18 @@ export default function Page() {
                             smart_toy
                           </span>
                                                 </div>
-                                                <div className="flex-grow space-y-6">
+                                                <div className="flex-grow space-y-6 overflow-hidden">
                                                     <div
-                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic">
+                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic break-words overflow-x-hidden max-w-full">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                             {msg.content}
                                                         </ReactMarkdown>
                                                     </div>
+
+                                                    {/* Anclaje de scroll durante el streaming, antes de las fuentes */}
+                                                    {isTyping && index === messages.length - 1 && (
+                                                        <div ref={streamingAnchorRef} className="h-0 w-0" />
+                                                    )}
 
                                                     {/* Citations / Sources */}
                                                     {msg.sources && msg.sources.length > 0 && (
