@@ -61,7 +61,7 @@ export function AppSidebar({ onNewChat }: AppSidebarProps) {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="rounded-lg py-5 px-4 hover:bg-surface-container-high transition-colors">
-                  <Link href="/documentos-oficiales" className="flex items-center gap-3">
+                  <Link href="/official-documents" className="flex items-center gap-3">
                     <BookOpen className="size-5" />
                     <span className="font-medium text-on-surface-variant">Documentos Oficiales</span>
                   </Link>
