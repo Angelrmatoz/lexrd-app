@@ -13,7 +13,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Page() {
-    const {messages, isLoading, isThinking, sendMessage, clearMessages, limitReached} = useChatStore();
+    const {messages, isLoading, isThinking, isTyping, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
     const [autoScroll, setAutoScroll] = useState(true);
@@ -38,12 +38,13 @@ export default function Page() {
         scrollToBottom();
     }, [messages.length]);
 
-    // Durante el typewriter, solo hacer scroll si el usuario está cerca del fondo
+    // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
+    // Cuando isTyping es false (respuesta completa, fuentes renderizadas), NO hacer scroll
     useEffect(() => {
-        if (autoScroll && isNearBottom()) {
+        if (isTyping && autoScroll && isNearBottom()) {
             scrollToBottom();
         }
-    }, [messages]);
+    }, [messages, isTyping]);
 
     // Detectar scroll manual del usuario
     const handleScroll = () => {

@@ -1,17 +1,7 @@
 import { create } from "zustand";
 import { Message, ChatResponse } from "@/types/chat";
+import { ChatState } from "@/types/chat-store";
 import { API } from "@/lib/api-config";
-
-interface ChatState {
-  messages: Message[];
-  isLoading: boolean;
-  isThinking: boolean;
-  isTyping: boolean;
-  sessionId: string;
-  limitReached: boolean;
-  sendMessage: (input: string) => Promise<void>;
-  clearMessages: () => void;
-}
 
 const MAX_MESSAGES = 20;
 const TYPEWRITER_INTERVAL_MS = 15;
