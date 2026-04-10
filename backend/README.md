@@ -8,9 +8,10 @@ El backend de LexRD es el motor de inteligencia artificial y procesamiento de da
     -   **Query Router**: Clasifica la intención del usuario para identificar el documento legal más relevante.
     -   **Query Rewriting**: Reformula consultas informales en términos legales técnicos para optimizar la búsqueda semántica.
     -   **Búsqueda Filtrada**: Utiliza metadatos para buscar específicamente en las leyes sugeridas por el enrutador.
--   **Multi-Model Fallback**: Sistema de resiliencia que intenta utilizar modelos secundarios (ej. Gemini 2.5, 2.0, Gemma 4) si el modelo primario falla por saturación o errores temporales.
+-   **Multi-Model Fallback**: Sistema de resiliencia que intenta utilizar modelos secundarios si el modelo primario falla por saturación o errores temporales.
+    - **Cadena**: `gemini-2.5-flash` → `gemini-2.5-flash-lite` → `gemini-2.0-flash` → `gemini-2.0-flash-lite` → `gemma-4-31b-it`
 -   **Local Embeddings (Transformers)**: Genera embeddings vectoriales localmente utilizando el modelo **Jina Embeddings V2 Base ES** (768 dimensiones) y **DJL PyTorch**.
--   **Streaming Support**: Proporciona respuestas en tiempo real mediante **Server-Sent Events (SSE)**.
+-   **Animación Typewriter (Frontend)**: La respuesta síncrona del backend se muestra con animación de escritura carácter por carácter en el frontend.
 -   **Ingesta Inteligente**: Procesamiento de leyes con `StructuralLawSplitter`, que respeta la jerarquía legal (Libros, Títulos, Capítulos, Artículos).
 
 ## Base de Conocimientos Actual
@@ -24,8 +25,7 @@ El sistema procesa y consulta actualmente la siguiente legislación dominicana:
 
 Todos los endpoints (excepto `/api/health` y documentación) requieren el header `x-api-key`.
 
--   `POST /api/chat`: Respuesta síncrona de la IA.
--   `POST /api/chat/stream`: Respuesta en streaming (SSE).
+-   `POST /api/chat`: Respuesta síncrona de la IA (JSON con `{"response": "..."}`).
 -   `GET /api/documents`: Lista los documentos legales disponibles.
 -   `GET /api/health`: Estado del sistema (Acceso público).
 -   `GET /swagger-ui.html`: Documentación interactiva de la API.

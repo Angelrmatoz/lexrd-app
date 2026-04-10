@@ -16,15 +16,39 @@ export default function Page() {
     const {messages, isLoading, isThinking, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
+    const [autoScroll, setAutoScroll] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     };
 
+    // Detectar si el usuario está cerca del fondo del scroll
+    const isNearBottom = () => {
+        const container = scrollContainerRef.current;
+        if (!container) return true;
+        const threshold = 120; // píxeles de margen
+        return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    };
+
+    // Al enviar un mensaje, forzar scroll al fondo y reactivar autoScroll
     useEffect(() => {
+        setAutoScroll(true);
         scrollToBottom();
+    }, [messages.length]);
+
+    // Durante el typewriter, solo hacer scroll si el usuario está cerca del fondo
+    useEffect(() => {
+        if (autoScroll && isNearBottom()) {
+            scrollToBottom();
+        }
     }, [messages]);
+
+    // Detectar scroll manual del usuario
+    const handleScroll = () => {
+        setAutoScroll(isNearBottom());
+    };
 
     // Countdown cuando se alcanza el límite
     useEffect(() => {
@@ -57,7 +81,7 @@ export default function Page() {
                 <NavBar onNewChat={clearMessages}/>
 
                 {/* Main Canvas */}
-                <main className="flex-grow flex flex-col pt-24 pb-32 overflow-y-auto hide-scrollbar">
+                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-grow flex flex-col pt-24 pb-32 overflow-y-auto hide-scrollbar">
                     <div className="w-full max-w-3xl mx-auto px-6 py-12 flex-grow">
                         {messages.length === 0 ? (
                             /* Welcome State */

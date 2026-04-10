@@ -6,6 +6,7 @@ interface ChatState {
   messages: Message[];
   isLoading: boolean;
   isThinking: boolean;
+  isTyping: boolean;
   sessionId: string;
   limitReached: boolean;
   sendMessage: (input: string) => Promise<void>;
@@ -13,6 +14,7 @@ interface ChatState {
 }
 
 const MAX_MESSAGES = 20;
+const TYPEWRITER_INTERVAL_MS = 15;
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
@@ -20,6 +22,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   isThinking: false,
+  isTyping: false,
   sessionId: generateId(),
   limitReached: false,
 
@@ -29,6 +32,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     limitReached: false,
     isLoading: false,
     isThinking: false,
+    isTyping: false,
   }),
 
   sendMessage: async (input: string) => {
@@ -63,9 +67,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         headers["x-api-key"] = API.apiKey;
       }
 
-      // Usar endpoint de streaming
-      const streamUrl = API.chat.url.replace("/api/chat", "/api/chat/stream");
-      const response = await fetch(streamUrl, {
+      const response = await fetch(API.chat.url, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -76,88 +78,55 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       if (!response.ok) throw new Error("Error del servidor");
 
-      const contentType = response.headers.get("content-type") || "";
+      const data: ChatResponse = await response.json();
+      const fullResponse = data.response || "";
+      const sources = data.sources || [];
 
-      if (contentType.includes("text/event-stream")) {
-        // SSE Streaming
-        set({ isThinking: false });
+      set({ isThinking: false });
 
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let streamedContent = "";
-        let sources: string[] = [];
+      // Crear mensaje vacío del asistente
+      const assistantMessageIndex = get().messages.length;
+      set((state) => ({
+        messages: [
+          ...state.messages,
+          {
+            role: "assistant",
+            content: "",
+            sources: sources.length > 0 ? sources : undefined,
+            time: getCurrentTime(),
+          },
+        ],
+      }));
 
-        const streamingMessageIndex = get().messages.length;
-        set((state) => ({
-          messages: [
-            ...state.messages,
-            {
-              role: "assistant",
-              content: "",
-              sources: [],
-              time: getCurrentTime(),
-            },
-          ],
-        }));
+      // Efecto typewriter: mostrar carácter por carácter
+      if (fullResponse.length > 0) {
+        set({ isTyping: true });
 
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n");
-            
-            for (const line of lines) {
-              if (line.startsWith("data:")) {
-                try {
-                  const jsonStr = line.substring(5).trim();
-                  if (jsonStr) {
-                    const data: ChatResponse = JSON.parse(jsonStr);
-                    if (data.response) {
-                      streamedContent += data.response;
-                    }
-                    if (data.sources && data.sources.length > 0) {
-                      sources = data.sources;
-                    }
-                  }
-                } catch (e) {
-                  // Ignorar parse errors
-                }
-              }
+        let charIndex = 0;
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(() => {
+            if (charIndex >= fullResponse.length) {
+              clearInterval(interval);
+              set({ isTyping: false, isLoading: false });
+              resolve();
+              return;
             }
+
+            charIndex++;
+            const typedContent = fullResponse.substring(0, charIndex);
 
             set((state) => {
               const updatedMessages = [...state.messages];
-              updatedMessages[streamingMessageIndex] = {
-                ...updatedMessages[streamingMessageIndex],
-                content: streamedContent,
-                sources: sources.length > 0 ? sources : undefined,
+              updatedMessages[assistantMessageIndex] = {
+                ...updatedMessages[assistantMessageIndex],
+                content: typedContent,
               };
               return { messages: updatedMessages };
             });
-          }
-        }
-
-        set({ isLoading: false, isThinking: false });
+          }, TYPEWRITER_INTERVAL_MS);
+        });
       } else {
-        // Fallback JSON
-        set({ isThinking: false });
-        const data: ChatResponse = await response.json();
-
-        set((state) => ({
-          messages: [
-            ...state.messages,
-            {
-              role: "assistant",
-              content: data.response,
-              sources: data.sources,
-              time: getCurrentTime(),
-            },
-          ],
-          isLoading: false,
-          isThinking: false,
-        }));
+        set({ isLoading: false });
       }
 
       if (get().messages.length >= MAX_MESSAGES) {

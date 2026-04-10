@@ -29,20 +29,13 @@ function mockFetchWithJSONResponse(responseText: string, sources: string[] = [])
   global.fetch = jest.fn().mockResolvedValue(mockResponse);
 }
 
-function mockFetchWithStreamResponse(responseText: string, sources: string[] = []) {
-  const mockResponse = {
-    ok: true,
-    status: 200,
-    headers: {
-      get: (name: string) => name === 'content-type' ? 'text/event-stream' : null,
-    },
-    body: null,
-  };
-  global.fetch = jest.fn().mockResolvedValue(mockResponse);
-}
-
 function mockFetchWithError() {
   global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+}
+
+// Helper para esperar a que se resuelvan todas las promesas pendientes
+async function flushPromises() {
+  await new Promise(resolve => setTimeout(resolve, 0));
 }
 
 // ──────────────────────────────────────────────
@@ -152,8 +145,13 @@ describe('Integración: ChatInput + useChatStore', () => {
 describe('Integración: Flujo completo de envío', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
     useChatStore.getState().clearMessages();
     global.fetch = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('debe completar el ciclo: input → enviar → loading → respuesta', async () => {
@@ -167,15 +165,24 @@ describe('Integración: Flujo completo de envío', () => {
       });
     });
 
-    mockFetchWithJSONResponse('Según el artículo 39 de la Constitución...', ['Constitución Dominicana Art. 39']);
+    const responseText = 'Según el artículo 39 de la Constitución...';
+    mockFetchWithJSONResponse(responseText, ['Constitución Dominicana Art. 39']);
 
     const store = useChatStore.getState();
     expect(store.messages).toHaveLength(0);
     expect(store.isLoading).toBe(false);
 
-    // Simular envío
+    // Iniciar envío
+    store.sendMessage('¿Qué dice el artículo 39?');
+
+    // Esperar microtasks (fetch mock response.json()) y luego avanzar timers del typewriter
     await act(async () => {
-      await store.sendMessage('¿Qué dice el artículo 39?');
+      // Permitir que las microtasks del async/await se ejecuten
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      // Ahora el setInterval del typewriter ya está configurado, avanzar timers
+      jest.runAllTimers();
     });
 
     // Verificar que el mensaje del usuario se agregó
@@ -184,14 +191,15 @@ describe('Integración: Flujo completo de envío', () => {
     expect(state.messages[0].role).toBe('user');
     expect(state.messages[0].content).toBe('¿Qué dice el artículo 39?');
 
-    // Verificar que la respuesta del asistente llegó
+    // Verificar que la respuesta del asistente llegó completa
     expect(state.messages[1].role).toBe('assistant');
-    expect(state.messages[1].content).toBe('Según el artículo 39 de la Constitución...');
+    expect(state.messages[1].content).toBe(responseText);
     expect(state.messages[1].sources).toContain('Constitución Dominicana Art. 39');
 
     // Verificar que loading se reseteó
     expect(state.isLoading).toBe(false);
     expect(state.isThinking).toBe(false);
+    expect(state.isTyping).toBe(false);
   });
 
   it('debe manejar errores del servidor y agregar mensaje de error', async () => {
@@ -278,7 +286,8 @@ describe('Integración: Flujo completo de envío', () => {
     });
 
     // Mock de fetch
-    mockFetchWithJSONResponse('Respuesta');
+    const responseText = 'Respuesta';
+    mockFetchWithJSONResponse(responseText);
 
     // Simular 18 mensajes manualmente (9 ciclos user+assistant)
     for (let i = 0; i < 9; i++) {
@@ -299,8 +308,14 @@ describe('Integración: Flujo completo de envío', () => {
     expect(useChatStore.getState().limitReached).toBe(false);
 
     // Enviar un mensaje más: user (19) + assistant (20) → debe activar limitReached
+    useChatStore.getState().sendMessage('Mensaje 19');
+
+    // Esperar microtasks y avanzar timers del typewriter
     await act(async () => {
-      await useChatStore.getState().sendMessage('Mensaje 19');
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      jest.runAllTimers();
     });
 
     const state = useChatStore.getState();
@@ -326,6 +341,7 @@ describe('Integración: Flujo completo de envío', () => {
     expect(state.messages).toHaveLength(0);
     expect(state.isLoading).toBe(false);
     expect(state.isThinking).toBe(false);
+    expect(state.isTyping).toBe(false);
     expect(state.limitReached).toBe(false);
     expect(state.sessionId).toBeDefined();
   });
