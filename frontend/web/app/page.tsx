@@ -7,7 +7,11 @@ import {ChatInput} from "@/components/ChatInput";
 import {AppSidebar} from "@/components/AppSidebar";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {Message} from "@/types/chat";
-import {useChatStore} from "@/store/useChatStore";
+import {
+    CHAT_RESET_COUNTDOWN_SECONDS,
+    MAX_CONVERSATION_TURNS,
+    useChatStore,
+} from "@/store/useChatStore";
 import {AlertCircle, Timer} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -61,7 +65,7 @@ export default function Page() {
     // Countdown cuando se alcanza el límite
     useEffect(() => {
         if (limitReached && countdown === null) {
-            setCountdown(10);
+            setCountdown(CHAT_RESET_COUNTDOWN_SECONDS);
         }
 
         if (countdown !== null && countdown > 0) {
@@ -231,7 +235,7 @@ export default function Page() {
                                 <AlertTitle>Límite de conversación alcanzado</AlertTitle>
                                 <AlertDescription className="flex items-center gap-1.5">
                                     <Timer className="h-3.5 w-3.5" />
-                                    Se ha excedido el límite de 10 mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
+                                    Se ha excedido el límite de {MAX_CONVERSATION_TURNS} mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
                                 </AlertDescription>
                             </Alert>
                         </div>
