@@ -45,7 +45,8 @@ export default function Page() {
 
     // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
     // Seguimos el streamingAnchorRef que está antes de las fuentes
-    const lastMessageContent = messages.length > 0 ? messages[messages.length - 1].content : "";
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+    const lastMessageContent = lastMessage ? lastMessage.content : "";
     useEffect(() => {
         if (isTyping && autoScroll && isNearBottom()) {
             scrollToStreamingAnchor();
@@ -111,9 +112,9 @@ export default function Page() {
                         ) : (
                             /* Message Feed */
                             <div className="space-y-12">
-                                {messages.map((msg, index) => (
+                                {messages.filter(msg => msg && msg.role).map((msg, index) => (
                                     <div
-                                        key={index}
+                                        key={`${index}-${msg.role}`}
                                         className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
                                     >
                                         {msg.role === "user" ? (
