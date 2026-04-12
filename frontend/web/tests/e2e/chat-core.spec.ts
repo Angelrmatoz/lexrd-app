@@ -35,9 +35,11 @@ test.describe('LexRD - Flujo Principal de Chat (Mocked)', () => {
 
     const chatInput = page.getByPlaceholder('Consultar LexRD...');
     
-    // Escribir y enviar de la forma más estándar posible
-    await chatInput.fill('Requisitos divorcio');
-    await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 10000 });
+    // Escribir y enviar asegurando la hidratación de React
+    await expect(async () => {
+      await chatInput.fill('Requisitos divorcio');
+      await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
     await page.keyboard.press('Enter');
 
     // Verificar que el mensaje del usuario aparece en el feed
@@ -66,8 +68,10 @@ test.describe('LexRD - Flujo Principal de Chat (Mocked)', () => {
   test('Debe limpiar el chat', async ({ page }) => {
     const chatInput = page.getByPlaceholder('Consultar LexRD...');
     
-    await chatInput.fill('Mensaje para borrar');
-    await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 10000 });
+    await expect(async () => {
+      await chatInput.fill('Mensaje para borrar');
+      await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
     await page.keyboard.press('Enter');
     
     await expect(page.getByText('Mensaje para borrar')).toBeVisible();
