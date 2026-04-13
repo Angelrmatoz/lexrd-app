@@ -24,66 +24,21 @@ export default function Page() {
     const {messages, isLoading, isThinking, isTyping, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
-    const [autoScroll, setAutoScroll] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const streamingAnchorRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const scrollFrameRef = useRef<number | null>(null);
 
-    const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
-        messagesEndRef.current?.scrollIntoView({behavior, block: "nearest"});
-    };
-
-    const scrollToStreamingAnchor = () => {
-        if (scrollFrameRef.current !== null) return;
-
-        scrollFrameRef.current = window.requestAnimationFrame(() => {
-            if (streamingAnchorRef.current) {
-                // Mantiene el ancla de escritura visible, sin irse hasta el fondo absoluto
-                streamingAnchorRef.current.scrollIntoView({ behavior: "auto", block: "nearest" });
-            } else {
-                messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "nearest" });
+    // Al enviar un nuevo mensaje (cuando el último mensaje es del usuario),
+    // hacemos scroll suave hacia el fondo para ver el indicador de "Pensando..."
+    useEffect(() => {
+        if (messages.length > 0) {
+            const lastMsg = messages[messages.length - 1];
+            if (lastMsg.role === "user") {
+                setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+                }, 100);
             }
-            scrollFrameRef.current = null;
-        });
-    };
-
-    // Detectar si el usuario está cerca del fondo del scroll
-    const isNearBottom = () => {
-        const container = scrollContainerRef.current;
-        if (!container) return true;
-        const threshold = 120; // píxeles de margen
-        return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
-    };
-
-    // Al enviar un nuevo mensaje (usuario), forzar scroll al fondo y reactivar autoScroll
-    useEffect(() => {
-        setAutoScroll(true);
-        scrollToBottom(messages.length > 1 ? "smooth" : "auto");
-    }, [messages.length]);
-
-    // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
-    // Seguimos el streamingAnchorRef que está antes de las fuentes
-    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
-    const lastMessageContent = lastMessage ? lastMessage.content : "";
-    useEffect(() => {
-        if (isTyping && autoScroll && isNearBottom()) {
-            scrollToStreamingAnchor();
         }
-    }, [lastMessageContent, isTyping, autoScroll]);
-
-    useEffect(() => {
-        return () => {
-            if (scrollFrameRef.current !== null) {
-                window.cancelAnimationFrame(scrollFrameRef.current);
-            }
-        };
-    }, []);
-
-    // Detectar scroll manual del usuario
-    const handleScroll = () => {
-        setAutoScroll(isNearBottom());
-    };
+    }, [messages.length]);
 
     // Countdown cuando se alcanza el límite
     useEffect(() => {
@@ -116,7 +71,7 @@ export default function Page() {
                 <NavBar onNewChat={clearMessages}/>
 
                 {/* Área de mensajes: ocupa espacio restante, scrolleable */}
-                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
+                <main ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
                     <div className="w-full max-w-3xl mx-auto px-6 py-12">
                         {messages.length === 0 ? (
                             /* Welcome State */
@@ -142,7 +97,8 @@ export default function Page() {
                                 {messages.filter(msg => msg && msg.role).map((msg, index) => (
                                     <div
                                         key={`${index}-${msg.role}`}
-                                        className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                                        id={`message-${index}`}
+                                        className={`flex flex-col scroll-mt-24 ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
                                     >
                                         {msg.role === "user" ? (
                                             <>
@@ -175,15 +131,10 @@ export default function Page() {
                                                         )}
                                                     </div>
 
-                                                    {/* Anclaje de scroll durante el streaming, antes de las fuentes */}
-                                                    {isTyping && index === messages.length - 1 && (
-                                                        <div ref={streamingAnchorRef} className="h-0 w-0" />
-                                                    )}
-
-                                                    {/* Citations / Sources */}
-                                                    {msg.sources && msg.sources.length > 0 && (
+                                                    {/* Citations / Sources - Solo se muestran cuando la IA ha terminado de escribir */}
+                                                    {msg.sources && msg.sources.length > 0 && (!isTyping || index !== messages.length - 1) && (
                                                         <div
-                                                            className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3">
+                                                            className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3 animate-in fade-in duration-500">
                                                             <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                                                                 <Gavel className="size-3.5" strokeWidth={2.2} />
                                                                 Fuentes Jurídicas
