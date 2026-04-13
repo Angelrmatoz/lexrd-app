@@ -89,8 +89,8 @@ export default function LibraryPage() {
 
       {/* Decorative Elements */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.02] blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.02] blur-[120px] rounded-full"></div>
+        <div className="ambient-orb absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue rounded-full"></div>
+        <div className="ambient-orb absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red rounded-full"></div>
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ test.describe('LexRD - Flujo Principal de Chat (Mocked)', () => {
     // Escribir y enviar asegurando la hidratación de React
     await expect(async () => {
       await chatInput.fill('Requisitos divorcio');
-      await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 1000 });
+      await expect(page.getByTestId('send-button')).toBeEnabled({ timeout: 1000 });
     }).toPass({ timeout: 15000 });
     await page.keyboard.press('Enter');
 
@@ -70,7 +70,7 @@ test.describe('LexRD - Flujo Principal de Chat (Mocked)', () => {
     
     await expect(async () => {
       await chatInput.fill('Mensaje para borrar');
-      await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 1000 });
+      await expect(page.getByTestId('send-button')).toBeEnabled({ timeout: 1000 });
     }).toPass({ timeout: 15000 });
     await page.keyboard.press('Enter');
     
