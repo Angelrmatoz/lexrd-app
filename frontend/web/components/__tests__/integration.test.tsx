@@ -18,12 +18,14 @@ import { AlertCircle, Timer } from 'lucide-react';
 // ──────────────────────────────────────────────
 
 function mockFetchWithJSONResponse(responseText: string, sources: string[] = []) {
+  const body = JSON.stringify({ response: responseText, sources });
   const mockResponse = {
     ok: true,
     status: 200,
     headers: {
       get: (name: string) => name === 'content-type' ? 'application/json' : null,
     },
+    text: async () => body,
     json: async () => ({ response: responseText, sources }),
   };
   global.fetch = jest.fn().mockResolvedValue(mockResponse);
