@@ -65,7 +65,7 @@ test.describe.serial('LexRD - Límites de conversación (Mocked)', () => {
       page.getByText(`Se ha excedido el límite de ${MAX_TURNS} mensajes.`, { exact: false }),
     ).toBeVisible();
     await expect(page.getByPlaceholder('Conversación bloqueada...')).toBeDisabled();
-    await expect(page.getByRole('button').filter({ hasText: 'arrow_upward' })).toBeDisabled();
+    await expect(page.getByTestId('send-button')).toBeDisabled();
   });
 
   test('Debe limpiar el chat automáticamente cuando termina el countdown', async ({ page }) => {

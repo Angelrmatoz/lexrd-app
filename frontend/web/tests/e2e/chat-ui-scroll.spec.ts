@@ -22,7 +22,7 @@ async function fillChatInput(page: Page, text: string) {
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }, text);
-  await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 5000 });
+  await expect(page.getByTestId('send-button')).toBeEnabled({ timeout: 5000 });
 }
 
 async function sendChatMessage(page: Page, text: string) {

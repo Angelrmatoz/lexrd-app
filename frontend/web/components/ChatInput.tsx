@@ -39,6 +39,7 @@ export function ChatInput({
             />
             <div className="flex items-center gap-1 pb-1 ml-2">
               <Button
+                data-testid="send-button"
                 onClick={onSend}
                 disabled={isLoading || !input.trim() || isDisabled}
                 size="icon"
