@@ -58,7 +58,7 @@ export function NavBar({ onNewChat }: HeaderProps) {
                 className={`transition-all duration-300 px-4 py-1.5 rounded-xl ${
                   pathname === "/" 
                   ? "bg-surface-container-highest text-on-surface shadow-inner" 
-                  : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-high/50"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
                 }`}
                 href="/"
               >
@@ -68,7 +68,7 @@ export function NavBar({ onNewChat }: HeaderProps) {
                 className={`transition-all duration-300 px-4 py-1.5 rounded-xl ${
                   pathname === "/documentos-oficiales" || pathname === "/official-documents"
                   ? "bg-surface-container-highest text-on-surface shadow-inner"
-                  : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-high/50"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
                 }`}
                 href="/documentos-oficiales"
               >
