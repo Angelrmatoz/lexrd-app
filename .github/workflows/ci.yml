@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   # ─── Frontend Web Tests ───
@@ -30,6 +31,37 @@ jobs:
       - name: Run tests
         run: pnpm --filter web test
         env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+          NEXT_PUBLIC_API_KEY_FILTER: test-api-key
+
+  # ─── Frontend E2E Tests ───
+  # Corre en cada PR/push y también se puede disparar manualmente.
+  frontend-e2e:
+    name: Frontend E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter web exec playwright install --with-deps chromium webkit
+
+      - name: Run E2E tests (Chromium and WebKit)
+        run: pnpm --filter web test:e2e --project=chromium --project=webkit
+        env:
+          BASE_URL: http://localhost:3000
           NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
           NEXT_PUBLIC_API_KEY_FILTER: test-api-key
 

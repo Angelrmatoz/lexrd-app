@@ -36,3 +36,7 @@ yarn-error.log*
 
 # JetBrains IDEs
 .idea
+
+#Playwright Test Report
+playwright-report
+test-results

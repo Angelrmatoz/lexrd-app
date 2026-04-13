@@ -3,8 +3,10 @@ import { Message, ChatResponse } from "@/types/chat";
 import { ChatState } from "@/types/chat-store";
 import { API } from "@/lib/api-config";
 
-const MAX_MESSAGES = 20;
-const TYPEWRITER_INTERVAL_MS = 15;
+export const MAX_MESSAGES = 20;
+export const MAX_CONVERSATION_TURNS = Math.floor(MAX_MESSAGES / 2);
+export const CHAT_RESET_COUNTDOWN_SECONDS = 10;
+const TYPEWRITER_INTERVAL_MS = 20;
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
@@ -68,7 +70,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       if (!response.ok) throw new Error("Error del servidor");
 
-      const data: ChatResponse = await response.json();
+      const text = await response.text();
+      if (!text || text.trim() === "") throw new Error("Respuesta vacía del servidor");
+      
+      let data: ChatResponse;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error("Error parseando JSON:", text);
+        set({ isLoading: false, isThinking: false });
+        throw new Error("Respuesta del servidor malformada");
+      }
+      
       let fullResponse = data.response || "";
       const sources = data.sources || [];
 
@@ -102,6 +115,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
         let charIndex = 0;
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
+            const currentMessages = get().messages;
+            
+            // Si el chat se limpió mientras escribíamos, detener el intervalo
+            if (currentMessages.length === 0) {
+              clearInterval(interval);
+              set({ isTyping: false, isLoading: false });
+              resolve();
+              return;
+            }
+
             if (charIndex >= fullResponse.length) {
               clearInterval(interval);
               set({ isTyping: false, isLoading: false });
@@ -114,6 +137,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
             set((state) => {
               const updatedMessages = [...state.messages];
+              
+              // Si el mensaje en el índice ya no existe, abortar
+              if (!updatedMessages[assistantMessageIndex]) {
+                return state;
+              }
+
               updatedMessages[assistantMessageIndex] = {
                 ...updatedMessages[assistantMessageIndex],
                 content: typedContent,

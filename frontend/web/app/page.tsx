@@ -7,7 +7,11 @@ import {ChatInput} from "@/components/ChatInput";
 import {AppSidebar} from "@/components/AppSidebar";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {Message} from "@/types/chat";
-import {useChatStore} from "@/store/useChatStore";
+import {
+    CHAT_RESET_COUNTDOWN_SECONDS,
+    MAX_CONVERSATION_TURNS,
+    useChatStore,
+} from "@/store/useChatStore";
 import {AlertCircle, Timer} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -45,7 +49,8 @@ export default function Page() {
 
     // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
     // Seguimos el streamingAnchorRef que está antes de las fuentes
-    const lastMessageContent = messages.length > 0 ? messages[messages.length - 1].content : "";
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+    const lastMessageContent = lastMessage ? lastMessage.content : "";
     useEffect(() => {
         if (isTyping && autoScroll && isNearBottom()) {
             scrollToStreamingAnchor();
@@ -60,7 +65,7 @@ export default function Page() {
     // Countdown cuando se alcanza el límite
     useEffect(() => {
         if (limitReached && countdown === null) {
-            setCountdown(10);
+            setCountdown(CHAT_RESET_COUNTDOWN_SECONDS);
         }
 
         if (countdown !== null && countdown > 0) {
@@ -111,9 +116,9 @@ export default function Page() {
                         ) : (
                             /* Message Feed */
                             <div className="space-y-12">
-                                {messages.map((msg, index) => (
+                                {messages.filter(msg => msg && msg.role).map((msg, index) => (
                                     <div
-                                        key={index}
+                                        key={`${index}-${msg.role}`}
                                         className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start gap-4"} w-full group animate-in fade-in slide-in-from-bottom-2 duration-300`}
                                     >
                                         {msg.role === "user" ? (
@@ -230,7 +235,7 @@ export default function Page() {
                                 <AlertTitle>Límite de conversación alcanzado</AlertTitle>
                                 <AlertDescription className="flex items-center gap-1.5">
                                     <Timer className="h-3.5 w-3.5" />
-                                    Se ha excedido el límite de 10 mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
+                                    Se ha excedido el límite de {MAX_CONVERSATION_TURNS} mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
                                 </AlertDescription>
                             </Alert>
                         </div>
@@ -249,9 +254,11 @@ export default function Page() {
             {/* Decorative Elements (Ambient Shadows) */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
                 <div
-                    className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.03] blur-[120px] rounded-full"></div>
+                    className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.03] blur-[120px] rounded-full"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
                 <div
-                    className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"></div>
+                    className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
             </div>
         </div>
 
