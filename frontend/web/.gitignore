@@ -38,5 +38,5 @@ yarn-error.log*
 .idea
 
 #Playwright Test Report
-/playwright-report
-/test-results
+playwright-report
+test-results
