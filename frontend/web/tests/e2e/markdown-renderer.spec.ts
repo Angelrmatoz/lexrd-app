@@ -40,9 +40,12 @@ test.describe('LexRD - Markdown Renderer (E2E)', () => {
     
     await page.keyboard.press('Enter');
 
-    // Verificar que el estado "Pensando..." desaparezca para indicar que el streaming terminó
+    // Verificar que el estado "Pensando..." desaparezca
     const pensando = page.getByText('Pensando...');
     await expect(pensando).toBeHidden({ timeout: 10000 });
+
+    // Esperar a que la IA termine de escribir (cuando termina, muestra las fuentes)
+    await expect(page.getByText('Fuentes Jurídicas')).toBeVisible({ timeout: 15000 });
 
     // Localizar el contenedor de la respuesta de la IA
     // Nos aseguramos de seleccionar la última respuesta (la recién enviada)

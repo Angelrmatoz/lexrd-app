@@ -107,6 +107,61 @@ test.describe.serial('LexRD - Interfaz y Navegación', () => {
         await expect(page.getByText(`Consulta número ${i}`)).toBeVisible();
       }
     });
+
+    test('Debe mostrar botón flotante al subir el scroll y bajar al hacer clic', async ({ page }) => {
+      await page.route('**/api/documents', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.route('**/api/chat', async (route) => {
+        const longResponse = 'Línea de texto.\n\n'.repeat(50) + '**Texto final del chat**';
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            response: longResponse,
+            sources: [],
+            sessionId: 'scroll-button-test',
+          }),
+        });
+      });
+
+      await waitForChatReady(page);
+      await sendChatMessage(page, 'Genera texto muy largo para probar el botón');
+
+      // Esperar a que desaparezca "Pensando..."
+      await expect(page.getByText('Pensando...')).toBeHidden({ timeout: 10000 });
+
+      // Esperar a que se renderice el texto final
+      const response = page.locator('.text-\\[16px\\]').last();
+      await expect(response).toContainText('Texto final del chat', { timeout: 15000 });
+
+      const scrollButton = page.getByRole('button', { name: 'Ir al final' });
+      
+      // Al principio, estamos cerca del fondo, el botón no debería estar visible
+      await expect(scrollButton).toBeHidden();
+
+      // Forzar scroll hacia arriba en el contenedor principal
+      await page.locator('main.overflow-y-auto').evaluate((el) => {
+        el.scrollTo({ top: 0, behavior: 'instant' });
+        el.dispatchEvent(new Event('scroll'));
+      });
+
+      // Ahora el botón debería estar visible
+      await expect(scrollButton).toBeVisible();
+
+      // Hacer clic en el botón
+      await scrollButton.click();
+
+      // El botón debería desaparecer porque volvimos al fondo (o cerca de él)
+      await expect(scrollButton).toBeHidden({ timeout: 5000 });
+      
+      // Validar matemáticamente que el scroll volvió al fondo
+      const isAtBottom = await page.locator('main.overflow-y-auto').evaluate((el) => {
+         return el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+      });
+      expect(isAtBottom).toBe(true);
+    });
   });
 
   test.describe('Responsividad', () => {

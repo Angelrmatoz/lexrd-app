@@ -13,7 +13,8 @@ import {
     MAX_CONVERSATION_TURNS,
     useChatStore,
 } from "@/store/useChatStore";
-import {AlertCircle, Bot, Gavel, Timer, ArrowDown} from "lucide-react";
+import {AlertCircle, Bot, Gavel, Timer} from "lucide-react";
+import { ScrollToBottomButton } from "@/components/ScrollToBottomButton";
 
 const MarkdownRenderer = dynamic(
     () => import("@/components/MarkdownRenderer").then((mod) => mod.MarkdownRenderer),
@@ -247,17 +248,10 @@ export default function Page() {
                 />
 
                 {/* Botón flotante para ir al final */}
-                {showScrollButton && messages.length > 0 && (
-                    <div className="absolute bottom-36 left-0 right-0 flex justify-center z-50 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <button
-                            onClick={scrollToBottom}
-                            className="bg-surface-container-high/80 backdrop-blur-md text-on-surface-variant hover:text-on-surface border border-outline-variant/20 p-2.5 rounded-full shadow-lg transition-all active:scale-95 pointer-events-auto cursor-pointer"
-                            aria-label="Ir al final"
-                        >
-                            <ArrowDown className="size-4" strokeWidth={2.5} />
-                        </button>
-                    </div>
-                )}
+                <ScrollToBottomButton 
+                    isVisible={showScrollButton && messages.length > 0} 
+                    onClick={scrollToBottom} 
+                />
             </div>
 
             {/* Decorative Elements (Ambient Shadows) */}

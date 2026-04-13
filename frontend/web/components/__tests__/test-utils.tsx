@@ -106,6 +106,7 @@ jest.mock('lucide-react', () => {
     Bot: mockIcon,
     Gavel: mockIcon,
     Timer: mockIcon,
+    ArrowDown: mockIcon,
   };
 });
 
