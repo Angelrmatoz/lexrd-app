@@ -35,11 +35,10 @@ jobs:
           NEXT_PUBLIC_API_KEY_FILTER: test-api-key
 
   # ─── Frontend E2E Tests ───
-  # Corre solo en main (post-merge) + manual trigger. No bloquea PRs.
+  # Corre en cada PR/push y también se puede disparar manualmente.
   frontend-e2e:
     name: Frontend E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
