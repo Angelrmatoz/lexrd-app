@@ -1,7 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
 
-const MAX_TURNS = 10;
-
 async function waitForChatReady(page: Page) {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
@@ -9,40 +7,31 @@ async function waitForChatReady(page: Page) {
   await expect(page.getByText('Tu Asistente Legal Digital')).toBeVisible({ timeout: 15000 });
 }
 
-async function fillChatWithMessages(page: Page, count: number) {
-  for (let i = 1; i <= count; i++) {
-    await page.route('**/api/chat', async (route) => {
-      // Generar respuesta larga para forzar scroll
-      const longResponse = `**Respuesta ${i}**\n\n`.repeat(5);
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          response: longResponse,
-          sources: ['Código Civil'],
-          sessionId: `scroll-session-${i}`,
-        }),
-      });
-    });
-
-    const chatInput = page.getByPlaceholder('Consultar LexRD...');
-    await expect(chatInput).toBeEnabled({ timeout: 15000 });
-    await chatInput.fill(`Mensaje ${i}`);
-    await page.keyboard.press('Enter');
-
-    // Esperar respuesta
-    await expect(page.getByText(`Mensaje ${i}`)).toBeVisible({ timeout: 10000 });
-
-    const pensando = page.getByText('Pensando...');
-    await expect(pensando).toBeVisible({ timeout: 5000 });
-    await expect(pensando).toBeHidden({ timeout: 10000 });
-
-    // Limpiar route para siguiente iteración
-    await page.unroute('**/api/chat');
-  }
+/**
+ * Rellena el input de chat de forma fiable para componentes controlados de React.
+ */
+async function fillChatInput(page: Page, text: string) {
+  const chatInput = page.getByPlaceholder('Consultar LexRD...');
+  await chatInput.click();
+  await chatInput.evaluate((el, value) => {
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype,
+      'value'
+    )?.set;
+    nativeSetter?.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, text);
+  await expect(page.locator('button:has-text("arrow_upward")')).toBeEnabled({ timeout: 5000 });
 }
 
-test.describe('LexRD - Interfaz y Navegación', () => {
+async function sendChatMessage(page: Page, text: string) {
+  await fillChatInput(page, text);
+  await page.keyboard.press('Enter');
+  await expect(page.getByText(text)).toBeVisible({ timeout: 10000 });
+}
+
+test.describe.serial('LexRD - Interfaz y Navegación', () => {
   test.describe('Auto-Scroll Inteligente', () => {
     test('Debe hacer auto-scroll al enviar un mensaje', async ({ page }) => {
       await page.route('**/api/documents', async (route) => {
@@ -50,8 +39,9 @@ test.describe('LexRD - Interfaz y Navegación', () => {
       });
 
       await page.route('**/api/chat', async (route) => {
-        // Respuesta larga para verificar scroll
+        // Respuesta larga para verificar scroll + delay para "Pensando..."
         const longResponse = 'Este es un párrafo largo.\n\n'.repeat(10) + '**Texto final**';
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -65,18 +55,10 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
       await waitForChatReady(page);
 
-      // Obtener el contenedor de scroll
-      const scrollContainer = page.locator('main.flex-1');
-
       // Verificar que inicialmente está arriba (welcome state visible)
       await expect(page.getByText('Tu Asistente Legal Digital')).toBeVisible();
 
-      const chatInput = page.getByPlaceholder('Consultar LexRD...');
-      await chatInput.fill('Prueba de scroll');
-      await page.keyboard.press('Enter');
-
-      // Esperar respuesta
-      await expect(page.getByText('Prueba de scroll')).toBeVisible({ timeout: 10000 });
+      await sendChatMessage(page, 'Prueba de scroll');
 
       const pensando = page.getByText('Pensando...');
       await expect(pensando).toBeVisible({ timeout: 5000 });
@@ -93,6 +75,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
       });
 
       await page.route('**/api/chat', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -108,12 +91,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
       // Enviar 3 mensajes
       for (let i = 1; i <= 3; i++) {
-        const chatInput = page.getByPlaceholder('Consultar LexRD...');
-        await expect(chatInput).toBeEnabled({ timeout: 15000 });
-        await chatInput.fill(`Consulta número ${i}`);
-        await page.keyboard.press('Enter');
-
-        await expect(page.getByText(`Consulta número ${i}`)).toBeVisible({ timeout: 10000 });
+        await sendChatMessage(page, `Consulta número ${i}`);
 
         const pensando = page.getByText('Pensando...');
         await expect(pensando).toBeVisible({ timeout: 5000 });
@@ -133,7 +111,6 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
   test.describe('Responsividad', () => {
     test('Debe mostrar el layout correctamente en resolución de móvil', async ({ page }) => {
-      // Simular viewport de móvil (iPhone 12)
       await page.setViewportSize({ width: 390, height: 844 });
 
       await page.route('**/api/documents', async (route) => {
@@ -141,6 +118,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
       });
 
       await page.route('**/api/chat', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -154,20 +132,13 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
       await waitForChatReady(page);
 
-      // Verificar que el welcome state es visible en móvil
       await expect(page.getByText('Tu Asistente Legal Digital')).toBeVisible({ timeout: 15000 });
 
-      // Verificar que el input es visible y usable en móvil
       const chatInput = page.getByPlaceholder('Consultar LexRD...');
       await expect(chatInput).toBeVisible({ timeout: 5000 });
       await expect(chatInput).toBeEnabled();
 
-      // Enviar mensaje
-      await chatInput.fill('Prueba móvil');
-      await page.keyboard.press('Enter');
-
-      // Verificar respuesta
-      await expect(page.getByText('Prueba móvil')).toBeVisible({ timeout: 10000 });
+      await sendChatMessage(page, 'Prueba móvil');
 
       const pensando = page.getByText('Pensando...');
       await expect(pensando).toBeVisible({ timeout: 5000 });
@@ -181,7 +152,6 @@ test.describe('LexRD - Interfaz y Navegación', () => {
     });
 
     test('Debe mostrar el layout correctamente en tablet', async ({ page }) => {
-      // Simular viewport de tablet (iPad)
       await page.setViewportSize({ width: 768, height: 1024 });
 
       await page.route('**/api/documents', async (route) => {
@@ -189,6 +159,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
       });
 
       await page.route('**/api/chat', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -204,13 +175,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
       await expect(page.getByText('Tu Asistente Legal Digital')).toBeVisible({ timeout: 15000 });
 
-      const chatInput = page.getByPlaceholder('Consultar LexRD...');
-      await expect(chatInput).toBeVisible({ timeout: 5000 });
-
-      await chatInput.fill('Prueba tablet');
-      await page.keyboard.press('Enter');
-
-      await expect(page.getByText('Prueba tablet')).toBeVisible({ timeout: 10000 });
+      await sendChatMessage(page, 'Prueba tablet');
 
       const pensando = page.getByText('Pensando...');
       await expect(pensando).toBeVisible({ timeout: 5000 });
@@ -228,6 +193,7 @@ test.describe('LexRD - Interfaz y Navegación', () => {
       });
 
       await page.route('**/api/chat', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -241,15 +207,10 @@ test.describe('LexRD - Interfaz y Navegación', () => {
 
       await waitForChatReady(page);
 
-      // Enviar mensaje
-      const chatInput = page.getByPlaceholder('Consultar LexRD...');
-      await chatInput.fill('Mensaje para borrar en móvil');
-      await page.keyboard.press('Enter');
+      await sendChatMessage(page, 'Mensaje para borrar en móvil');
 
-      await expect(page.getByText('Mensaje para borrar en móvil')).toBeVisible({ timeout: 10000 });
-
-      // Esperar respuesta
-      await page.waitForTimeout(1000);
+      // Esperar a que la respuesta se renderice
+      await page.waitForTimeout(500);
 
       // Click en Nuevo Chat
       const newChatButton = page.getByRole('button', { name: 'Nuevo Chat' }).first();
