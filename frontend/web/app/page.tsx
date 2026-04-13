@@ -14,6 +14,7 @@ import {
     useChatStore,
 } from "@/store/useChatStore";
 import {AlertCircle, Bot, Gavel, Timer} from "lucide-react";
+import { ScrollToBottomButton } from "@/components/ScrollToBottomButton";
 
 const MarkdownRenderer = dynamic(
     () => import("@/components/MarkdownRenderer").then((mod) => mod.MarkdownRenderer),
@@ -24,19 +25,49 @@ export default function Page() {
     const {messages, isLoading, isThinking, isTyping, sendMessage, clearMessages, limitReached} = useChatStore();
     const [input, setInput] = useState("");
     const [countdown, setCountdown] = useState<number | null>(null);
+    const [showScrollButton, setShowScrollButton] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Al enviar un nuevo mensaje (cuando el último mensaje es del usuario),
-    // hacemos scroll suave hacia el fondo para ver el indicador de "Pensando..."
+    const scrollToBottom = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                top: scrollContainerRef.current.scrollHeight,
+                behavior: "smooth"
+            });
+        } else {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+    };
+
+    const handleScroll = () => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        
+        // Mostrar botón si estamos a más de 150px del fondo
+        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+        setShowScrollButton(!isNearBottom);
+    };
+
+    // Control del scroll al enviar o recibir mensajes
     useEffect(() => {
         if (messages.length > 0) {
-            const lastMsg = messages[messages.length - 1];
-            if (lastMsg.role === "user") {
-                setTimeout(() => {
+            const lastMsgIndex = messages.length - 1;
+            const lastMsg = messages[lastMsgIndex];
+            
+            setTimeout(() => {
+                if (lastMsg.role === "user") {
+                    // Cuando el usuario envía, bajamos para ver el indicador "Pensando..."
                     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-                }, 100);
-            }
+                } else if (lastMsg.role === "assistant") {
+                    // Cuando la IA empieza a responder, enfocamos exactamente el inicio de su respuesta
+                    const element = document.getElementById(`message-${lastMsgIndex}`);
+                    if (element) {
+                        // block: "start" lo alinea arriba, scroll-mt-24 lo separa del NavBar
+                        element.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                }
+            }, 100);
         }
     }, [messages.length]);
 
@@ -71,7 +102,7 @@ export default function Page() {
                 <NavBar onNewChat={clearMessages}/>
 
                 {/* Área de mensajes: ocupa espacio restante, scrolleable */}
-                <main ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
+                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
                     <div className="w-full max-w-3xl mx-auto px-6 py-12">
                         {messages.length === 0 ? (
                             /* Welcome State */
@@ -214,6 +245,12 @@ export default function Page() {
                     onSend={handleSend}
                     isLoading={isLoading}
                     isDisabled={limitReached}
+                />
+
+                {/* Botón flotante para ir al final */}
+                <ScrollToBottomButton 
+                    isVisible={showScrollButton && messages.length > 0} 
+                    onClick={scrollToBottom} 
                 />
             </div>
 

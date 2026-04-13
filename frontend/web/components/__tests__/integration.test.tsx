@@ -10,6 +10,7 @@ import { useChatStore } from '@/store/useChatStore';
 import { ChatInput } from '../ChatInput';
 import { NavBar } from '../NavBar';
 import { AppSidebar } from '../AppSidebar';
+import { ScrollToBottomButton } from '../ScrollToBottomButton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Timer } from 'lucide-react';
 
@@ -502,5 +503,55 @@ describe('Integración: Alerta de límite con countdown', () => {
     expect(state.limitReached).toBe(false);
 
     clearInterval(interval);
+  });
+});
+
+// ──────────────────────────────────────────────
+// Integración 5: ScrollToBottomButton + useChatStore
+// ──────────────────────────────────────────────
+
+describe('Integración: ScrollToBottomButton con estado de chat', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useChatStore.getState().clearMessages();
+  });
+
+  it('no debe mostrar el botón si no hay mensajes aunque el scroll esté lejos del fondo', () => {
+    // Simulamos que el componente Page detecta que el scroll está lejos del fondo (showScrollButton = true)
+    const showScrollButton = true;
+    const store = useChatStore.getState();
+
+    render(
+      <ScrollToBottomButton 
+        isVisible={showScrollButton && store.messages.length > 0} 
+        onClick={jest.fn()} 
+      />
+    );
+
+    // Como no hay mensajes, NO debe renderizarse
+    expect(screen.queryByRole('button', { name: 'Ir al final' })).not.toBeInTheDocument();
+  });
+
+  it('debe mostrar el botón si hay mensajes y el scroll está lejos del fondo', () => {
+    // Agregamos un mensaje al store
+    act(() => {
+      useChatStore.setState({
+        messages: [{ role: 'user', content: 'test' }]
+      });
+    });
+
+    // Simulamos que el componente Page detecta que el scroll está lejos del fondo
+    const showScrollButton = true;
+    const store = useChatStore.getState();
+
+    render(
+      <ScrollToBottomButton 
+        isVisible={showScrollButton && store.messages.length > 0} 
+        onClick={jest.fn()} 
+      />
+    );
+
+    // Ahora SÍ debe renderizarse
+    expect(screen.getByRole('button', { name: 'Ir al final' })).toBeInTheDocument();
   });
 });
