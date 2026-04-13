@@ -31,17 +31,19 @@ export default function Page() {
     const scrollFrameRef = useRef<number | null>(null);
 
     const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
-        messagesEndRef.current?.scrollIntoView({behavior, block: "end"});
+        messagesEndRef.current?.scrollIntoView({behavior, block: "nearest"});
     };
 
     const scrollToStreamingAnchor = () => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-
         if (scrollFrameRef.current !== null) return;
 
         scrollFrameRef.current = window.requestAnimationFrame(() => {
-            container.scrollTo({top: container.scrollHeight, behavior: "auto"});
+            if (streamingAnchorRef.current) {
+                // Mantiene el ancla de escritura visible, sin irse hasta el fondo absoluto
+                streamingAnchorRef.current.scrollIntoView({ behavior: "auto", block: "nearest" });
+            } else {
+                messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "nearest" });
+            }
             scrollFrameRef.current = null;
         });
     };
