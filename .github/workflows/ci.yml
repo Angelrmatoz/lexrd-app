@@ -56,10 +56,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: pnpm --filter web exec playwright install --with-deps chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium webkit
 
-      - name: Run E2E tests (Chromium only)
-        run: pnpm --filter web test:e2e --project=chromium
+      - name: Run E2E tests (Chromium and WebKit)
+        run: pnpm --filter web test:e2e --project=chromium --project=webkit
         env:
           BASE_URL: http://localhost:3000
           NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
