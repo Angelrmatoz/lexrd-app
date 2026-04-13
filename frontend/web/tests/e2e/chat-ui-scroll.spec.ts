@@ -212,8 +212,14 @@ test.describe.serial('LexRD - Interfaz y Navegación', () => {
       // Esperar a que la respuesta se renderice
       await page.waitForTimeout(500);
 
-      // Click en Nuevo Chat
-      const newChatButton = page.getByRole('button', { name: 'Nuevo Chat' }).first();
+      // En móvil, el sidebar está colapsado: abrirlo primero
+      const toggleSidebar = page.getByRole('button', { name: 'Toggle Sidebar' });
+      await expect(toggleSidebar).toBeVisible({ timeout: 5000 });
+      await toggleSidebar.click();
+
+      // Ahora el botón "New Chat" debería ser visible (el sidebar usa texto en inglés)
+      const newChatButton = page.getByRole('button', { name: 'New Chat' });
+      await expect(newChatButton).toBeVisible({ timeout: 5000 });
       await newChatButton.click();
 
       // Verificar que se restaura el estado inicial

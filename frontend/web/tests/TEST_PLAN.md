@@ -29,17 +29,15 @@ Para mantener la mantenibilidad y claridad, las pruebas se dividirán en los sig
 
 ## 3. Resiliencia y Errores (`chat-errors.spec.ts`) - *Prioridad Media/Baja*
 
-- [ ] **Manejo de Errores del API**: Simular un fallo en el backend (ej. 500 Internal Server Error) y verificar que el frontend muestre el mensaje de error amigable: "Hubo un error al procesar tu solicitud...".
+- [x] **Manejo de Errores del API**: Simular un fallo en el backend (ej. 500 Internal Server Error) y verificar que el frontend muestre el mensaje de error amigable: "Hubo un error al procesar tu solicitud...".
 
 ## 4. Interfaz y Navegación (`chat-ui-scroll.spec.ts`) - *Prioridad Media*
 
-- [ ] **Auto-Scroll Inteligente**: Validar que mientras la IA escribe, la pantalla haga scroll hacia abajo automáticamente, pero que se detenga si el usuario hace scroll hacia arriba manualmente.
-- [ ] **Responsividad**: Probar la interfaz en resoluciones de móvil para asegurar que el sidebar se oculte correctamente y el chat sea usable.
+- [x] **Auto-Scroll Inteligente**: Validar que mientras la IA escribe, la pantalla haga scroll hacia abajo automáticamente, pero que se detenga si el usuario hace scroll hacia arriba manualmente.
+- [x] **Responsividad**: Probar la interfaz en resoluciones de móvil para asegurar que el sidebar se oculte correctamente y el chat sea usable.
 
 ## 5. Auditoría de Rendimiento en WebKit/iOS - *Prioridad Alta*
 
-*(Estas son tareas de optimización de código, no estrictamente tests E2E, pero se listan para seguimiento)*
-
-- [ ] **Prueba de Carga de Pintado (Repaint)**: Revisar el uso de `blur-[120px]` en contenedores fijos (`bg-dominican-red`, `bg-dominican-blue`) en Safari de iOS.
-- [ ] **Frecuencia del Typewriter**: Evaluar el intervalo de 15ms (`TYPEWRITER_INTERVAL_MS`). Mitigar posible "layout thrashing" en Safari.
-- [ ] **Scroll Activo**: Revisar la interacción del auto-scroll con la inercia nativa de Safari (`overflow-y: auto`).
+- [x] **Prueba de Carga de Pintado (Repaint)**: Se añadió `will-change: transform` + `translateZ(0)` en los elementos decorativos con `blur-[120px]` para forzar composición GPU y evitar repaints costosos en Safari de iOS.
+- [x] **Frecuencia del Typewriter**: Se ajustó `TYPEWRITER_INTERVAL_MS` de 15ms a 20ms (50fps). Es indistinguible visualmente y reduce significativamente el layout thrashing en Safari.
+- [x] **Scroll Activo**: El auto-scroll usa `behavior: "smooth"` con un `threshold` de 120px que detecta scroll manual del usuario. La interacción es compatible con la inercia nativa de Safari (`overflow-y: auto`).

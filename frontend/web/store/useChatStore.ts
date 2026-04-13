@@ -6,7 +6,7 @@ import { API } from "@/lib/api-config";
 export const MAX_MESSAGES = 20;
 export const MAX_CONVERSATION_TURNS = Math.floor(MAX_MESSAGES / 2);
 export const CHAT_RESET_COUNTDOWN_SECONDS = 10;
-const TYPEWRITER_INTERVAL_MS = 15;
+const TYPEWRITER_INTERVAL_MS = 20;
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 

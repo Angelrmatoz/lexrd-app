@@ -254,9 +254,11 @@ export default function Page() {
             {/* Decorative Elements (Ambient Shadows) */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
                 <div
-                    className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.03] blur-[120px] rounded-full"></div>
+                    className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.03] blur-[120px] rounded-full"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
                 <div
-                    className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"></div>
+                    className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
             </div>
         </div>
 
