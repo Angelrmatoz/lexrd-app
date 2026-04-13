@@ -2,6 +2,7 @@
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ArrowUp } from "lucide-react";
 
 interface ChatInputProps {
   input: string;
@@ -47,12 +48,7 @@ export function ChatInput({
                     : "bg-primary text-on-primary hover:opacity-90 active:scale-95 shadow-lg shadow-primary/10"
                 }`}
               >
-                <span
-                  className="material-symbols-outlined text-[20px]"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  arrow_upward
-                </span>
+                <ArrowUp className="size-5" strokeWidth={2.5} />
               </Button>
             </div>
           </div>

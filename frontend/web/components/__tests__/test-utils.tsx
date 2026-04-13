@@ -101,6 +101,11 @@ jest.mock('lucide-react', () => {
     Library: mockIcon,
     BookOpen: mockIcon,
     ChevronDown: mockIcon,
+    ArrowUp: mockIcon,
+    AlertCircle: mockIcon,
+    Bot: mockIcon,
+    Gavel: mockIcon,
+    Timer: mockIcon,
   };
 });
 

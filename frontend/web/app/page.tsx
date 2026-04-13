@@ -1,6 +1,7 @@
 "use client";
 
 import {useState, useRef, useEffect} from "react";
+import dynamic from "next/dynamic";
 import {NavBar} from "@/components/NavBar";
 import {Footer} from "@/components/Footer";
 import {ChatInput} from "@/components/ChatInput";
@@ -12,9 +13,12 @@ import {
     MAX_CONVERSATION_TURNS,
     useChatStore,
 } from "@/store/useChatStore";
-import {AlertCircle, Timer} from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import {AlertCircle, Bot, Gavel, Timer} from "lucide-react";
+
+const MarkdownRenderer = dynamic(
+    () => import("@/components/MarkdownRenderer").then((mod) => mod.MarkdownRenderer),
+    {ssr: false}
+);
 
 export default function Page() {
     const {messages, isLoading, isThinking, isTyping, sendMessage, clearMessages, limitReached} = useChatStore();
@@ -24,13 +28,22 @@ export default function Page() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const streamingAnchorRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollFrameRef = useRef<number | null>(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+    const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+        messagesEndRef.current?.scrollIntoView({behavior, block: "end"});
     };
 
     const scrollToStreamingAnchor = () => {
-        streamingAnchorRef.current?.scrollIntoView({behavior: "smooth", block: "end"});
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        if (scrollFrameRef.current !== null) return;
+
+        scrollFrameRef.current = window.requestAnimationFrame(() => {
+            container.scrollTo({top: container.scrollHeight, behavior: "auto"});
+            scrollFrameRef.current = null;
+        });
     };
 
     // Detectar si el usuario está cerca del fondo del scroll
@@ -44,7 +57,7 @@ export default function Page() {
     // Al enviar un nuevo mensaje (usuario), forzar scroll al fondo y reactivar autoScroll
     useEffect(() => {
         setAutoScroll(true);
-        scrollToBottom();
+        scrollToBottom(messages.length > 1 ? "smooth" : "auto");
     }, [messages.length]);
 
     // Solo hacer auto-scroll mientras la IA está escribiendo (typewriter activo)
@@ -56,6 +69,14 @@ export default function Page() {
             scrollToStreamingAnchor();
         }
     }, [lastMessageContent, isTyping, autoScroll]);
+
+    useEffect(() => {
+        return () => {
+            if (scrollFrameRef.current !== null) {
+                window.cancelAnimationFrame(scrollFrameRef.current);
+            }
+        };
+    }, []);
 
     // Detectar scroll manual del usuario
     const handleScroll = () => {
@@ -98,10 +119,10 @@ export default function Page() {
                         {messages.length === 0 ? (
                             /* Welcome State */
                             <div
-                                className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-1000">
                                 <div
-                                    className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-2xl">
-                                    <span className="material-symbols-outlined text-4xl">gavel</span>
+                                    className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-lg md:shadow-2xl transform-gpu">
+                                    <Gavel className="size-8" strokeWidth={2.2} />
                                 </div>
                                 <div className="space-y-2">
                                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
@@ -138,19 +159,18 @@ export default function Page() {
                                             <div className="flex items-start gap-4 w-full">
                                                 <div
                                                     className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
-                          <span
-                              className="material-symbols-outlined text-[20px]"
-                              style={{fontVariationSettings: "'FILL' 1"}}
-                          >
-                            smart_toy
-                          </span>
+                                                    <Bot className="size-5" strokeWidth={2.2} />
                                                 </div>
                                                 <div className="flex-grow space-y-6 overflow-hidden">
                                                     <div
                                                         className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic break-words overflow-x-hidden max-w-full">
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                            {msg.content}
-                                                        </ReactMarkdown>
+                                                        {isTyping && index === messages.length - 1 ? (
+                                                            <p className="whitespace-pre-wrap break-words">
+                                                                {msg.content}
+                                                            </p>
+                                                        ) : (
+                                                            <MarkdownRenderer content={msg.content} />
+                                                        )}
                                                     </div>
 
                                                     {/* Anclaje de scroll durante el streaming, antes de las fuentes */}
@@ -163,9 +183,7 @@ export default function Page() {
                                                         <div
                                                             className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3">
                                                             <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[14px]">
-                                  menu_book
-                                </span>
+                                                                <Gavel className="size-3.5" strokeWidth={2.2} />
                                                                 Fuentes Jurídicas
                                                             </h4>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -200,12 +218,7 @@ export default function Page() {
                                 {isThinking && (
                                     <div className="flex items-start gap-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
-                                            <span
-                                                className="material-symbols-outlined text-[20px] animate-pulse"
-                                                style={{fontVariationSettings: "'FILL' 1"}}
-                                            >
-                                                smart_toy
-                                            </span>
+                                            <Bot className="size-5 animate-pulse" strokeWidth={2.2} />
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex items-center gap-2 py-3">
@@ -254,11 +267,9 @@ export default function Page() {
             {/* Decorative Elements (Ambient Shadows) */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
                 <div
-                    className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red opacity-[0.03] blur-[120px] rounded-full"
-                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
+                    className="ambient-orb absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-dominican-red rounded-full"></div>
                 <div
-                    className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue opacity-[0.03] blur-[120px] rounded-full"
-                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}></div>
+                    className="ambient-orb absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-dominican-blue rounded-full"></div>
             </div>
         </div>
 

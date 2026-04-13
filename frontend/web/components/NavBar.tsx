@@ -13,7 +13,6 @@ interface HeaderProps {
 export function NavBar({ onNewChat }: HeaderProps) {
   const pathname = usePathname();
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,13 +25,11 @@ export function NavBar({ onNewChat }: HeaderProps) {
         // Cualquier otro scroll → ocultar
         setVisible(false);
       }
-
-      setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <div
@@ -40,7 +37,7 @@ export function NavBar({ onNewChat }: HeaderProps) {
         visible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
-      <header className="w-full max-w-5xl bg-surface-container-low/70 backdrop-blur-xl border border-outline-variant/10 rounded-2xl shadow-2xl shadow-black/20 pointer-events-auto">
+      <header className="glass-surface w-full max-w-5xl border border-outline-variant/10 rounded-2xl shadow-2xl shadow-black/20 pointer-events-auto">
         <div className="flex justify-between items-center w-full px-6 py-2 h-14">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="md:hidden">
