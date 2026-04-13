@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   # ─── Frontend Web Tests ───
@@ -34,9 +35,11 @@ jobs:
           NEXT_PUBLIC_API_KEY_FILTER: test-api-key
 
   # ─── Frontend E2E Tests ───
+  # Corre solo en main (post-merge) + manual trigger. No bloquea PRs.
   frontend-e2e:
     name: Frontend E2E Tests (Playwright)
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,8 +59,8 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install --with-deps chromium
 
-      - name: Run E2E tests
-        run: pnpm --filter web test:e2e
+      - name: Run E2E tests (Chromium only)
+        run: pnpm --filter web test:e2e --project=chromium
         env:
           BASE_URL: http://localhost:3000
           NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
