@@ -6,10 +6,19 @@
   :root {
     --surface: #131313;
     --on-surface: #e5e2e1;
+    --primary: #c6c6c7;
+    --secondary-container: #bf0124;
+    --surface-container-highest: #353534;
+    --surface-container-lowest: #0e0e0e;
+    --on-surface-variant: #c4c7c7;
+    --tertiary: #abc7ff;
   }
 }
 
 body {
-  background-color: #131313;
-  color: #e5e2e1;
+  background-color: #131313 !important;
+}
+
+html {
+  color-scheme: dark !important;
 }
