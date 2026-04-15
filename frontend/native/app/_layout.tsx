@@ -1,7 +1,6 @@
-import { Stack } from "expo-router"
+import "@/styles/global.css";
+import { Stack } from "expo-router";
 
-const AppLayout = () => {
-  return <Stack />
+export default function RootLayout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
-
-export default AppLayout
