@@ -14,7 +14,7 @@ import {
     useChatStore,
 } from "@/store/useChatStore";
 import {AlertCircle, Bot, Gavel, Timer} from "lucide-react";
-import { ScrollToBottomButton } from "@/components/ScrollToBottomButton";
+import {ScrollToBottomButton} from "@/components/ScrollToBottomButton";
 
 const MarkdownRenderer = dynamic(
     () => import("@/components/MarkdownRenderer").then((mod) => mod.MarkdownRenderer),
@@ -36,14 +36,14 @@ export default function Page() {
                 behavior: "smooth"
             });
         } else {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+            messagesEndRef.current?.scrollIntoView({behavior: "smooth", block: "end"});
         }
     };
 
     const handleScroll = () => {
         const container = scrollContainerRef.current;
         if (!container) return;
-        
+
         // Mostrar botón si estamos a más de 150px del fondo
         const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
         setShowScrollButton(!isNearBottom);
@@ -54,17 +54,17 @@ export default function Page() {
         if (messages.length > 0) {
             const lastMsgIndex = messages.length - 1;
             const lastMsg = messages[lastMsgIndex];
-            
+
             setTimeout(() => {
                 if (lastMsg.role === "user") {
                     // Cuando el usuario envía, bajamos para ver el indicador "Pensando..."
-                    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+                    messagesEndRef.current?.scrollIntoView({behavior: "smooth", block: "end"});
                 } else if (lastMsg.role === "assistant") {
                     // Cuando la IA empieza a responder, enfocamos exactamente el inicio de su respuesta
                     const element = document.getElementById(`message-${lastMsgIndex}`);
                     if (element) {
                         // block: "start" lo alinea arriba, scroll-mt-24 lo separa del NavBar
-                        element.scrollIntoView({ behavior: "smooth", block: "start" });
+                        element.scrollIntoView({behavior: "smooth", block: "start"});
                     }
                 }
             }, 100);
@@ -95,14 +95,15 @@ export default function Page() {
     };
 
     return (
-        <div className="flex flex-col h-[100dvh] text-on-surface bg-surface overflow-hidden">
+        <div className="flex flex-col h-dvh text-on-surface bg-surface overflow-hidden">
             <AppSidebar onNewChat={clearMessages}/>
 
             <div className="flex flex-col flex-1 relative bg-surface overflow-hidden min-h-0">
                 <NavBar onNewChat={clearMessages}/>
 
                 {/* Área de mensajes: ocupa espacio restante, scrolleable */}
-                <main ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
+                <main ref={scrollContainerRef} onScroll={handleScroll}
+                      className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-24 pb-32">
                     <div className="w-full max-w-3xl mx-auto px-6 py-12">
                         {messages.length === 0 ? (
                             /* Welcome State */
@@ -110,7 +111,7 @@ export default function Page() {
                                 className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-1000">
                                 <div
                                     className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-lg md:shadow-2xl transform-gpu">
-                                    <Gavel className="size-8" strokeWidth={2.2} />
+                                    <Gavel className="size-8" strokeWidth={2.2}/>
                                 </div>
                                 <div className="space-y-2">
                                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
@@ -148,7 +149,7 @@ export default function Page() {
                                             <div className="flex items-start gap-4 w-full">
                                                 <div
                                                     className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
-                                                    <Bot className="size-5" strokeWidth={2.2} />
+                                                    <Bot className="size-5" strokeWidth={2.2}/>
                                                 </div>
                                                 <div className="flex-grow space-y-6 overflow-hidden">
                                                     <div
@@ -158,7 +159,7 @@ export default function Page() {
                                                                 {msg.content}
                                                             </p>
                                                         ) : (
-                                                            <MarkdownRenderer content={msg.content} />
+                                                            <MarkdownRenderer content={msg.content}/>
                                                         )}
                                                     </div>
 
@@ -167,7 +168,7 @@ export default function Page() {
                                                         <div
                                                             className="pt-4 border-l-2 border-dominican-red/20 pl-6 space-y-3 animate-in fade-in duration-500">
                                                             <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                                                                <Gavel className="size-3.5" strokeWidth={2.2} />
+                                                                <Gavel className="size-3.5" strokeWidth={2.2}/>
                                                                 Fuentes Jurídicas
                                                             </h4>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -200,16 +201,24 @@ export default function Page() {
 
                                 {/* Indicador "Pensando..." */}
                                 {isThinking && (
-                                    <div className="flex items-start gap-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                        <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
-                                            <Bot className="size-5 animate-pulse" strokeWidth={2.2} />
+                                    <div
+                                        className="flex items-start gap-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div
+                                            className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
+                                            <Bot className="size-5 animate-pulse" strokeWidth={2.2}/>
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex items-center gap-2 py-3">
                                                 <div className="flex gap-1">
-                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "0ms"}}></div>
-                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "150ms"}}></div>
-                                                    <div className="w-2 h-2 bg-dominican-red rounded-full animate-bounce" style={{animationDelay: "300ms"}}></div>
+                                                    <div
+                                                        className="w-2 h-2 bg-dominican-red rounded-full animate-bounce"
+                                                        style={{animationDelay: "0ms"}}></div>
+                                                    <div
+                                                        className="w-2 h-2 bg-dominican-red rounded-full animate-bounce"
+                                                        style={{animationDelay: "150ms"}}></div>
+                                                    <div
+                                                        className="w-2 h-2 bg-dominican-red rounded-full animate-bounce"
+                                                        style={{animationDelay: "300ms"}}></div>
                                                 </div>
                                                 <span className="text-sm text-on-surface-variant font-medium">
                                                     Pensando...
@@ -226,13 +235,15 @@ export default function Page() {
 
                     {/* Alerta de límite de mensajes */}
                     {limitReached && countdown !== null && (
-                        <div className="w-full max-w-3xl mx-auto px-6 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div
+                            className="w-full max-w-3xl mx-auto px-6 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
+                                <AlertCircle className="h-4 w-4"/>
                                 <AlertTitle>Límite de conversación alcanzado</AlertTitle>
                                 <AlertDescription className="flex items-center gap-1.5">
-                                    <Timer className="h-3.5 w-3.5" />
-                                    Se ha excedido el límite de {MAX_CONVERSATION_TURNS} mensajes. El chat se borrará automáticamente en <span className="font-bold">{countdown}s</span>.
+                                    <Timer className="h-3.5 w-3.5"/>
+                                    Se ha excedido el límite de {MAX_CONVERSATION_TURNS} mensajes. El chat se borrará
+                                    automáticamente en <span className="font-bold">{countdown}s</span>.
                                 </AlertDescription>
                             </Alert>
                         </div>
@@ -248,9 +259,9 @@ export default function Page() {
                 />
 
                 {/* Botón flotante para ir al final */}
-                <ScrollToBottomButton 
-                    isVisible={showScrollButton && messages.length > 0} 
-                    onClick={scrollToBottom} 
+                <ScrollToBottomButton
+                    isVisible={showScrollButton && messages.length > 0}
+                    onClick={scrollToBottom}
                 />
             </div>
 
