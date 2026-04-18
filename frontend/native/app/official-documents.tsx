@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, MessageSquare, Gavel, BookOpen } from "lucide-react-native";
 import { Link, router } from "expo-router";
 import { LEGAL_CATEGORIES } from "@/constants/categories";
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "@/store/useChatStore";
 
 export default function OfficialDocuments() {
   const { clearMessages } = useChatStore();
