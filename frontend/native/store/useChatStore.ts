@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { Message, ChatResponse } from "../types/chat";
-import { ChatState } from "../types/chat-store";
-import { API } from "../lib/api-config";
+import { Message, ChatResponse } from "@/types/chat";
+import { ChatState } from "@/types/chat-store";
+import { API } from "@/lib/api-config";
 
 export const MAX_MESSAGES = 20;
 const TYPEWRITER_INTERVAL_MS = 32;

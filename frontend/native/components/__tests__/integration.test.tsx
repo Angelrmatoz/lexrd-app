@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { Card } from '../Card';
-import { Input } from '../Input';
-import { Button } from '../Button';
+import { Card } from '@/components/Card';
+import { Input } from '@/components/Input';
+import { Button } from '@/components/Button';
 
 // Componente simple que integra los 3 componentes
 const TestForm = ({ onSubmit }: { onSubmit: (val: string) => void }) => {

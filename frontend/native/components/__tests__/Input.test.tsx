@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { Input } from '../Input';
+import { Input } from '@/components/Input';
 
 describe('Input', () => {
   it('renders correctly and accepts input', () => {

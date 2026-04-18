@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Text } from 'react-native';
-import { Card } from '../Card';
+import { Card } from '@/components/Card';
 
 describe('Card', () => {
   it('renders children correctly', () => {
