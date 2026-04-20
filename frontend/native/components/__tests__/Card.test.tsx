@@ -12,4 +12,22 @@ describe('Card', () => {
     );
     expect(getByText('Card Content')).toBeTruthy();
   });
+
+  it('renders with variant high correctly', () => {
+    const { getByText } = render(
+      <Card variant="high">
+        <Text>High Variant</Text>
+      </Card>
+    );
+    expect(getByText('High Variant')).toBeTruthy();
+  });
+
+  it('renders with custom testID', () => {
+    const { getByTestId } = render(
+      <Card testID="card-id">
+        <Text>Test</Text>
+      </Card>
+    );
+    expect(getByTestId('card-id')).toBeTruthy();
+  });
 });
