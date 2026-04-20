@@ -30,4 +30,32 @@ describe('Button', () => {
     const { getByTestId } = render(<Button label="Test" testID="custom-btn" />);
     expect(getByTestId('custom-btn')).toBeTruthy();
   });
+
+  it('renders with ghost variant without throwing', () => {
+    const { getByText } = render(<Button label="Ghost Button" variant="ghost" />);
+    expect(getByText('Ghost Button')).toBeTruthy();
+  });
+
+  it('renders with secondary variant without throwing', () => {
+    const { getByText } = render(<Button label="Secondary" variant="secondary" />);
+    expect(getByText('Secondary')).toBeTruthy();
+  });
+
+  it('renders with outline variant without throwing', () => {
+    const { getByText } = render(<Button label="Outline" variant="outline" />);
+    expect(getByText('Outline')).toBeTruthy();
+  });
+
+  it('can pass extra props like accessibilityHint', () => {
+    const { getByLabelText } = render(
+      <Button 
+        label="A11y" 
+        accessibilityLabel="a11y-label" 
+        accessibilityHint="Hint" 
+      />
+    );
+    
+    const btn = getByLabelText('a11y-label');
+    expect(btn.props.accessibilityHint).toBe('Hint');
+  });
 });

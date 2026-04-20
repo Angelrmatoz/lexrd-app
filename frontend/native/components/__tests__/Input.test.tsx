@@ -30,10 +30,38 @@ describe('Input', () => {
     );
     
     const input = getByDisplayValue('ReadOnly');
-    fireEvent.changeText(input, 'Attempt');
     
-    // In RNTL, fireEvent might still trigger, but native behavior would block.
-    // Testing props is safer here.
+    // Testing props directly is safer for editable check
     expect(input.props.editable).toBe(false);
+  });
+
+  it('respects maxLength prop', () => {
+    const { getByTestId } = render(
+      <Input testID="length-input" maxLength={5} />
+    );
+    
+    const input = getByTestId('length-input');
+    expect(input.props.maxLength).toBe(5);
+  });
+
+  it('handles secureTextEntry for passwords', () => {
+    const { getByTestId } = render(
+      <Input testID="secure-input" secureTextEntry={true} />
+    );
+    
+    const input = getByTestId('secure-input');
+    expect(input.props.secureTextEntry).toBe(true);
+  });
+
+  it('clears input when value is updated to empty string', () => {
+    const { getByDisplayValue, update } = render(
+      <Input value="To be cleared" />
+    );
+    
+    expect(getByDisplayValue('To be cleared')).toBeTruthy();
+
+    update(<Input value="" placeholder="Empty now" />);
+    // The previous text should be gone
+    expect(() => getByDisplayValue('To be cleared')).toThrow();
   });
 });
