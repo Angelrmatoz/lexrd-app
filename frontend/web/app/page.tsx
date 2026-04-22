@@ -3,11 +3,9 @@
 import {useState, useRef, useEffect} from "react";
 import dynamic from "next/dynamic";
 import {NavBar} from "@/components/NavBar";
-import {Footer} from "@/components/Footer";
 import {ChatInput} from "@/components/ChatInput";
 import {AppSidebar} from "@/components/AppSidebar";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
-import {Message} from "@/types/chat";
 import {
     CHAT_RESET_COUNTDOWN_SECONDS,
     MAX_CONVERSATION_TURNS,
@@ -110,7 +108,7 @@ export default function Page() {
                             <div
                                 className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-1000">
                                 <div
-                                    className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-lg md:shadow-2xl transform-gpu">
+                                    className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-lg md:shadow-2xl transform-gpu">
                                     <Gavel className="size-8" strokeWidth={2.2}/>
                                 </div>
                                 <div className="space-y-2">
@@ -148,14 +146,14 @@ export default function Page() {
                                         ) : (
                                             <div className="flex items-start gap-4 w-full">
                                                 <div
-                                                    className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
+                                                    className="mt-1 shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
                                                     <Bot className="size-5" strokeWidth={2.2}/>
                                                 </div>
-                                                <div className="flex-grow space-y-6 overflow-hidden">
+                                                <div className="grow space-y-6 overflow-hidden">
                                                     <div
-                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic break-words overflow-x-hidden max-w-full">
+                                                        className="text-[16px] leading-[1.7] text-on-surface space-y-4 font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic wrap-break-word overflow-x-hidden max-w-full">
                                                         {isTyping && index === messages.length - 1 ? (
-                                                            <p className="whitespace-pre-wrap break-words">
+                                                            <p className="whitespace-pre-wrap wrap-break-word">
                                                                 {msg.content}
                                                             </p>
                                                         ) : (
@@ -204,10 +202,10 @@ export default function Page() {
                                     <div
                                         className="flex items-start gap-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div
-                                            className="mt-1 flex-shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
+                                            className="mt-1 shrink-0 w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-dominican-red">
                                             <Bot className="size-5 animate-pulse" strokeWidth={2.2}/>
                                         </div>
-                                        <div className="flex-grow">
+                                        <div className="grow">
                                             <div className="flex items-center gap-2 py-3">
                                                 <div className="flex gap-1">
                                                     <div

@@ -24,7 +24,7 @@ export default function LibraryPage() {
       <div className="flex flex-col flex-1 relative bg-surface overflow-hidden">
         <NavBar onNewChat={handleNewChat} />
 
-        <main className="flex-grow pt-28 pb-12 px-6 overflow-y-auto hide-scrollbar">
+        <main className="grow pt-28 pb-12 px-6 overflow-y-auto hide-scrollbar">
           <div className="max-w-6xl mx-auto space-y-16">
             {/* Project Hero */}
             <div className="space-y-6 text-center md:text-left">

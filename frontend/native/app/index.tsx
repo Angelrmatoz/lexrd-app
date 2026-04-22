@@ -34,7 +34,7 @@ export default function Native() {
                     <View className="flex-row">
                         <Text className="text-xl font-black tracking-tighter uppercase text-[#e5e2e1]">Lex</Text>
                         <Text className="text-xl font-black tracking-tighter uppercase text-[#EF3340]">R</Text>
-                        <Text className="text-xl font-black tracking-tighter uppercase text-[#002D62]">D</Text>
+                        <Text className="text-xl font-black tracking-tighter uppercase text-[#0034BB]">D</Text>
                     </View>
                 </View>
                 <Pressable onPress={handleNewChat} className="bg-[#2a2a2a] p-2 rounded-xl active:opacity-80">
