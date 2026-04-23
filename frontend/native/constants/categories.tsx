@@ -22,7 +22,7 @@ export const LEGAL_CATEGORIES: CategoryDocument[] = [
   },
   {
     title: "Códigos Principales",
-    icon: <Landmark size={24} color="#002D62" />,
+    icon: <Landmark size={24} color="#0034BB" />,
     description: "Pilares del ordenamiento jurídico civil y penal.",
     documents: [
       "Código Civil",
