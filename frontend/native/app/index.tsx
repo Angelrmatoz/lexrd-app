@@ -60,7 +60,7 @@ export default function Native() {
                             <View className="flex-1 justify-center items-center space-y-6 -mt-10">
                                 <View className="rounded-[20px] overflow-hidden w-20 h-20 shadow-lg">
                                     <LinearGradient
-                                        colors={['#EF3340', '#002D62']}
+                                        colors={['#EF3340', '#0034BB']}
                                         start={{x: 0, y: 0}}
                                         end={{x: 1, y: 1}}
                                         className="flex-1 items-center justify-center"

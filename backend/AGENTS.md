@@ -50,3 +50,6 @@ El sistema implementa una capa de seguridad ligera para proteger los recursos de
 
 -   **MessageWindowChatMemory**: Mantiene una ventana de los últimos mensajes.
 -   **Advisors**: Se utiliza `MessageChatMemoryAdvisor` para persistir el historial de conversación por `conversation_id`.
+
+## Notas Adicionales (Abril 2026)
+- Recientes mejoras en el contexto legal de las indicaciones (prompts) aseguran un nivel más alto de precisión en las respuestas del asistente.

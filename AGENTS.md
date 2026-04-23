@@ -31,3 +31,8 @@ El proyecto es un **Turborepo** monorepo que integra un ecosistema de TypeScript
 -   **Documentos**: El `knowledge-base` en `backend/src/main/resources/knowledge-base` contiene PDFs que se ingieren automáticamente mediante `IngestionService.java`.
 -   **Seguridad**: CSRF está desactivado en entornos de desarrollo (`SecurityConfig.java`) para permitir pruebas POST directas (Postman).
 -   **Estilo**: Seguir convenciones: `camelCase` para variables/métodos, `PascalCase` para clases/componentes.
+
+## Actualizaciones Recientes (Abril 2026)
+- **UX Nativo**: Se añadió soporte robusto para el teclado en la app nativa con `KeyboardAvoidingView`.
+- **Estilos**: Refactorización de estilos globales, actualización de colores de marca y ajustes de contraste.
+- **Backend**: Actualización menor en el contexto legal de las respuestas de IA.

@@ -20,3 +20,7 @@ Esta carpeta gestiona todas las interfaces de usuario de LexRD.
 -   **Branding**: Icono en `/public/icon.svg`. Asegurar referencia con `type: "image/svg+xml"` en `layout.tsx`.
 -   **Tipado**: TypeScript estricto en todos los nuevos componentes.
 -   **IA Response**: Al procesar `ChatResponse`, visualizar siempre las fuentes (`sources`) recuperadas del backend.
+
+## Notas Adicionales (Abril 2026)
+- **Native UX**: Manejo del teclado nativo mejorado vía `KeyboardAvoidingView` y campos multilínea de altura dinámica.
+- **Estilos**: Los colores de marca se han ajustado (`#0034BB`) para accesibilidad y contraste. Evitar usar referencias antiguas como `#002D62`.
