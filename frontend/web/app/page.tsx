@@ -108,8 +108,8 @@ export default function Page() {
                             <div
                                 className="flex flex-col items-center justify-center text-center space-y-8 mt-20 opacity-90 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-1000">
                                 <div
-                                    className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary to-primary-container flex items-center justify-center text-on-primary shadow-lg md:shadow-2xl transform-gpu">
-                                    <Gavel className="size-8" strokeWidth={2.2}/>
+                                    className="w-20 h-20 rounded-[20px] bg-linear-to-br from-dominican-red to-dominican-blue flex items-center justify-center shadow-lg md:shadow-2xl transform-gpu">
+                                    <Gavel size={40} color="#e5e2e1" strokeWidth={2.2}/>
                                 </div>
                                 <div className="space-y-2">
                                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
