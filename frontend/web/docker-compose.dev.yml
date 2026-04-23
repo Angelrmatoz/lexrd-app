@@ -36,6 +36,7 @@ services:
       # Aislar node_modules en Linux para evitar EACCES y bloqueos de symlinks en Windows
       - /app/node_modules
       - /app/frontend/web/node_modules
+      - /app/frontend/native/node_modules
       - /app/packages/ui/node_modules
       - /app/packages/typescript-config/node_modules
       # Caché de pnpm global para instalaciones rápidas
