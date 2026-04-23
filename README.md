@@ -85,3 +85,9 @@ Asegúrate de tener configurado:
 - **Query Rewriting & Routing**: Optimización semántica y direccionamiento inteligente de consultas para mejorar la precisión de recuperación.
 - **Seguridad**: Configuración personalizada para facilitar pruebas de desarrollo.
 - **Branding Localizado**: Interfaz adaptada a la identidad visual de República Dominicana.
+
+## Actualizaciones Recientes (Abril 2026)
+- **UI/UX Móvil**: Integración de `KeyboardAvoidingView` para mejor manejo del teclado y altura dinámica de inputs.
+- **Diseño**: Actualización de colores principales a `#0034BB` para mejorar el contraste.
+- **Backend**: Mejoras en el contexto legal para mayor precisión en las respuestas.
+- **Configuración**: Actualización de dependencias (`react-native-worklets`), assets (iconos, splash screen) y exclusión de directorio `android` en git.

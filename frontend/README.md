@@ -17,3 +17,7 @@ Esta carpeta contiene las aplicaciones de interfaz de usuario de la plataforma L
 
 ---
 *Para detalles técnicos específicos para agentes de IA, consulta `AGENTS.md` en esta carpeta.*
+
+## Actualizaciones Recientes (Abril 2026)
+- **Mejoras UX/UI**: Refactorización de estilos, uso de `KeyboardAvoidingView` en móvil y actualización del color principal a `#0034BB`.
+- **Assets**: Nuevos iconos (`icon.svg`), splash screen adaptativo y actualización de configuraciones PWA/Nativas.

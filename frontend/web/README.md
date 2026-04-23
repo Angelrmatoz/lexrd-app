@@ -27,3 +27,7 @@ docker compose -f frontend/web/docker-compose.dev.yml up -d
 
 ---
 *Para detalles de arquitectura, consulta el `README.md` y `AGENTS.md` en la raíz del proyecto.*
+
+## Actualizaciones Recientes (Abril 2026)
+- Ajustes de diseño (`linear-to-br`), corrección de envoltura de texto en `page.tsx` y mejor alineamiento de elementos.
+- Cambios de referencias de colores a `#0034BB` para mayor consistencia visual.

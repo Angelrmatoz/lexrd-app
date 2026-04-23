@@ -59,3 +59,7 @@ El sistema incluye un `DjlWarmupRunner` que descarga las bibliotecas nativas de 
 
 ---
 *Para detalles técnicos profundos sobre la arquitectura de los agentes y servicios de IA, consulta `AGENTS.md`.*
+
+## Notas Adicionales (Abril 2026)
+- Se han refinado las respuestas de la IA agregando actualizaciones menores al contexto legal para mayor precisión.
+- La configuración de Docker se mantiene excluida de los volúmenes del frontend para mejor compatibilidad local.
