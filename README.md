@@ -86,6 +86,10 @@ Asegúrate de tener configurado:
 - **Seguridad**: Configuración personalizada para facilitar pruebas de desarrollo.
 - **Branding Localizado**: Interfaz adaptada a la identidad visual de República Dominicana.
 
+## Licencia
+
+Este proyecto se distribuye bajo la licencia [MIT](./LICENSE).
+
 ## Actualizaciones Recientes (Abril 2026)
 - **UI/UX Móvil**: Integración de `KeyboardAvoidingView` para mejor manejo del teclado y altura dinámica de inputs.
 - **Diseño**: Actualización de colores principales a `#0034BB` para mejorar el contraste.
